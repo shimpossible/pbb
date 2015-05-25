@@ -17,6 +17,8 @@ class RouteConfig
 {
 public:
 
+    static RouteConfig& LocalInstance();
+
     RouteConfig();
     ~RouteConfig();
 

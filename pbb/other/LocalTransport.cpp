@@ -31,3 +31,9 @@ Message* LocalTransport::Clone(Message* msg)
     msg->Copy(msg);
     return cloned;
 }
+
+LocalTransport& LocalTransport::LocalInstance()
+{
+    static LocalTransport mInstance(RouteConfig::LocalInstance());
+    return mInstance;
+}

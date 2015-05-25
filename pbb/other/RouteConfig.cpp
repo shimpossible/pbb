@@ -60,3 +60,9 @@ void RouteConfig::OnReceive(Link& src, Message* msg)
     uint32_t crc = msg->GetProtcolCRC();
     mIncommingHandlers[crc].ForEach(src, msg);
 }
+
+RouteConfig& RouteConfig::LocalInstance()
+{
+    static RouteConfig mConfig;
+    return mConfig;
+}

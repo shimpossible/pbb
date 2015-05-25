@@ -14,10 +14,17 @@ public:
 
     typedef void(__cdecl *DispatchFptr)(Link& link, Message* msg);
 
+    Endpoint(uint32_t type)
+        : mConfig( RouteConfig::LocalInstance() )
+    {
+        mLink.type = type;
+        mLink.local = true;
+    }
+
     /**
     @param type  Service Type
     */
-    Endpoint(RouteConfig& config, uint32_t type)
+    Endpoint(uint32_t type, RouteConfig& config )
         : mConfig(config)
     {
         mLink.type = type;

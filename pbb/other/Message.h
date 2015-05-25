@@ -13,7 +13,6 @@ public:
     virtual uint32_t GetCode() = 0;
     virtual void Copy(Message* other) = 0;
 
-
     /**
       Implement for pooled messages
      */

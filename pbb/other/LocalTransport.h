@@ -12,6 +12,8 @@ Transports the message to the local endpoints
 class LocalTransport : public ITransport
 {
 public:
+    static LocalTransport& LocalInstance();
+
     LocalTransport(RouteConfig& config);
 
     /**
