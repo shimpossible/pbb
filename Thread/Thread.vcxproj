@@ -74,9 +74,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Mutex.cpp" />
     <ClCompile Include="src\thread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\pbb\Mutex.h" />
     <ClInclude Include="include\pbb\thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
