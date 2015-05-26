@@ -28,7 +28,7 @@ namespace pbb
 
         /**
         Wait for thread to finish
-        @returns return value from thread
+        @returns 0 on success
         */
         uint32_t Join();
 

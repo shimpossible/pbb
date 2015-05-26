@@ -142,7 +142,7 @@ void main(int argc, const char** argv)
 
     printf("Thread: %s\r\n", thrd.GetName());
 
-    thrd.Join();
+    uint32_t ret = thrd.Join();
 
     Configure();
 

@@ -93,13 +93,13 @@ const char* pbb::Thread::GetName()
 uint32_t pbb::Thread::Join()
 {
     assert(mThread);
-
-    DWORD exitCode = 0;
+    
     WaitForSingleObject(mThread, INFINITE);
-    GetExitCodeThread(mThread, &exitCode);
+    //DWORD exitCode = 0;
+    //GetExitCodeThread(mThread, &exitCode);
     CloseHandle(mThread);
     mThread = 0;
-    return exitCode;
+    return 0;
 }
 
 void pbb::Thread::SetPriority(int32_t priority)
