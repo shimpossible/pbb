@@ -24,5 +24,8 @@
     #define PBB_API __declspec(dllimport)
 #endif
 
-
+namespace pbb
+{
+    uint32_t PBB_API GetVersion();
+};
 #endif /* __PBB_H__ */

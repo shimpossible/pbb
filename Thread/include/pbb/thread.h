@@ -6,7 +6,7 @@
 namespace pbb
 {
 
-    class IRunnable
+    class PBB_API IRunnable
     {
     public:
         virtual ~IRunnable() {}
@@ -17,7 +17,7 @@ namespace pbb
     };
 
 
-    class Thread
+    class PBB_API Thread
     {
     public:
 

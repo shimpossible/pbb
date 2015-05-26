@@ -1,9 +1,12 @@
+#include <stdio.h>
+#include "pbb/thread.h"
+#if 0
 #include "other/oe_types.h"
 #include "other/LocalTransport.h"
 #include "other/Endpoint.h"
 #include "other/RouteConfig.h"
 
-#include "Thread/include/pbb/thread.h"
+
 
 #define NO_TYPE (1)
 
@@ -124,6 +127,7 @@ protected:
 MyService* MyService::Instance = 0;
 
 void Configure();
+#endif
 
 class MyThread
 {
@@ -143,12 +147,12 @@ void main(int argc, const char** argv)
     printf("Thread: %s\r\n", thrd.GetName());
 
     uint32_t ret = thrd.Join();
-
+    /*
     Configure();
 
     MyService service;
     service.test();
     service.Idle();
-
+    */
     printf("done");
 }
