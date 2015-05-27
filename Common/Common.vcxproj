@@ -76,7 +76,7 @@
     <ClInclude Include="include\pbb\platform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pbb.cpp" />
+    <ClCompile Include="src\pbb.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
