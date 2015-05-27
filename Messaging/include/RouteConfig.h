@@ -1,5 +1,5 @@
-#ifndef __ROUTE_CONFIG_H__
-#define __ROUTE_CONFIG_H__
+#ifndef __PBB_ROUTE_CONFIG_H__
+#define __PBB_ROUTE_CONFIG_H__
 
 #include "Link.h"
 #include "Message.h"
@@ -122,4 +122,4 @@ namespace pbb {
     };
 
 } /* namespace pbb */
-#endif /* __ROUTE_CONFIG_H__ */
+#endif /* __PBB_ROUTE_CONFIG_H__ */

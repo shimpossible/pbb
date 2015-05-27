@@ -1,5 +1,5 @@
-#ifndef __ITRANSPORT_H__
-#define __ITRANSPORT_H__
+#ifndef __PBB_ITRANSPORT_H__
+#define __PBB_ITRANSPORT_H__
 #include <pbb/pbb.h>
 
 namespace pbb {

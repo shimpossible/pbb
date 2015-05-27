@@ -1,46 +1,48 @@
-#ifndef __REF_COUNTED_H__
-#define __REF_COUNTED_H__
+#ifndef __PBB_REF_COUNTED_H__
+#define __PBB_REF_COUNTED_H__
 #include <stdint.h>
-#include "Atomic.h"
+#include "pbb/Atomic.h"
 #include <assert.h>
 
-class RefCounted
-{
-public:
-    void AddRef()
+namespace pbb {
+    class RefCounted
     {
-        // Started below 0?
-        assert(mRefCount >= 0);
-
-        ++mRefCount;
-    }
-    void Release()
-    {
-        --mRefCount;
-        // Too many calls to Release
-        assert(mRefCount >= 0);
-        if (mRefCount == 0)
+    public:
+        void AddRef()
         {
-            delete this;
+            // Started below 0?
+            assert(mRefCount >= 0);
+
+            ++mRefCount;
         }
-    }
-protected:
-    RefCounted()
-        : mRefCount(0)
-    {
-    }
-    virtual ~RefCounted() = 0 {}
+        void Release()
+        {
+            --mRefCount;
+            // Too many calls to Release
+            assert(mRefCount >= 0);
+            if (mRefCount == 0)
+            {
+                delete this;
+            }
+        }
+    protected:
+        RefCounted()
+            : mRefCount(0)
+        {
+        }
+        virtual ~RefCounted() = 0 {}
 
-    RefCounted(const RefCounted&) : mRefCount(0)
-    {
-    }
-    RefCounted& operator=(const RefCounted&)
-    {
-        return *this;
-    }
-private:
+        RefCounted(const RefCounted&) : mRefCount(0)
+        {
+        }
+        RefCounted& operator=(const RefCounted&)
+        {
+            return *this;
+        }
+    private:
 
-    Atomic<int32_t> mRefCount;
-};
+        Atomic<int32_t> mRefCount;
+    };
 
-#endif /* __REF_COUNTED_H__ */
+} /* namespace pbb */
+#endif /* __PBB_REF_COUNTED_H__ */

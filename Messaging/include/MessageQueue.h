@@ -1,5 +1,5 @@
-#ifndef __MESSAGE_QUEUE_H__
-#define __MESSAGE_QUEUE_H__
+#ifndef __PBB_MESSAGE_QUEUE_H__
+#define __PBB_MESSAGE_QUEUE_H__
 
 #include "Link.h"
 #include "Message.h"
@@ -28,4 +28,4 @@ namespace pbb {
     };
 } /* namespace pbb */
 
-#endif /* __MESSAGE_QUEUE_H__ */
+#endif /* __PBB_MESSAGE_QUEUE_H__ */
