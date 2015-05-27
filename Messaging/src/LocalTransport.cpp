@@ -1,39 +1,43 @@
 #include "LocalTransport.h"
+#include "RouteConfig.h"
 
-LocalTransport::LocalTransport(RouteConfig& config)
-    : mConfig(config)
+namespace pbb
 {
-    mConfig.ConfigureTransport(this);
-}
+    LocalTransport::LocalTransport(RouteConfig& config)
+        : mConfig(config)
+    {
+        mConfig.ConfigureTransport(this);
+    }
 
-void LocalTransport::Transmit(Link& link, Message* msg)
-{
-    //TODO: Create a ref counted copy of the message and forward it
-    Message* clone = Clone(msg);
-    clone->AddRef();
-    mConfig.OnReceive(link, clone);
-    clone->Release();
-}
+    void LocalTransport::Transmit(Link& link, Message* msg)
+    {
+        //TODO: Create a ref counted copy of the message and forward it
+        Message* clone = Clone(msg);
+        clone->AddRef();
+        mConfig.OnReceive(link, clone);
+        clone->Release();
+    }
 
-void LocalTransport::ConfigureOutbound(uint32_t crc)
-{
-    // Since this is local, we dont have to do anything
-}
+    void LocalTransport::ConfigureOutbound(uint32_t crc)
+    {
+        // Since this is local, we dont have to do anything
+    }
 
-/**
-Create a clone of a message based on protocol and id
-*/
-Message* LocalTransport::Clone(Message* msg)
-{
-    uint32_t proto = msg->GetProtcolCRC();
-    uint32_t code = msg->GetCode();
-    Message* cloned = mConfig.CreateMessage(proto, code);
-    msg->Copy(msg);
-    return cloned;
-}
+    /**
+    Create a clone of a message based on protocol and id
+    */
+    Message* LocalTransport::Clone(Message* msg)
+    {
+        uint32_t proto = msg->GetProtcolCRC();
+        uint32_t code = msg->GetCode();
+        Message* cloned = mConfig.CreateMessage(proto, code);
+        msg->Copy(msg);
+        return cloned;
+    }
 
-LocalTransport& LocalTransport::LocalInstance()
-{
-    static LocalTransport mInstance(RouteConfig::LocalInstance());
-    return mInstance;
-}
+    LocalTransport& LocalTransport::LocalInstance()
+    {
+        static LocalTransport mInstance(RouteConfig::LocalInstance());
+        return mInstance;
+    }
+} /* namespace pbb */

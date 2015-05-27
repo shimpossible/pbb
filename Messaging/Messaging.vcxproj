@@ -42,7 +42,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>include;$(IncludePath)</IncludePath>
+    <IncludePath>include;$(SolutionDir)/Common/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -75,7 +75,6 @@
     <ClInclude Include="include\LocalTransport.h" />
     <ClInclude Include="include\Message.h" />
     <ClInclude Include="include\MessageQueue.h" />
-    <ClInclude Include="include\oe_types.h" />
     <ClInclude Include="include\RefCounted.h" />
     <ClInclude Include="include\RouteConfig.h" />
   </ItemGroup>

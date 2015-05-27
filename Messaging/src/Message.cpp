@@ -1,8 +1,9 @@
 #include "Message.h"
 
-Message::Message()
+pbb::Message::Message()
 {
 }
-Message::~Message()
+
+pbb::Message::~Message()
 {
 }

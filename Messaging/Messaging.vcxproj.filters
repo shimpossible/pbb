@@ -18,9 +18,6 @@
     <ClInclude Include="include\MessageQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\oe_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\RefCounted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
