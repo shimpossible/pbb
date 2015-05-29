@@ -1,4 +1,4 @@
-#include "Message.h"
+#include "pbb/Message.h"
 
 pbb::Message::Message()
 {

@@ -70,6 +70,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\LocalTransportTest.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RouteConfigTest.cpp" />
   </ItemGroup>

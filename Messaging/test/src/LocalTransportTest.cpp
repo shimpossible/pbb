@@ -2,84 +2,30 @@
 #include "pbb/RouteConfig.h"
 #include <vector>
 
+#include "TestProtocol.h"
+
 #include "gtest/gtest.h"
 
 using namespace pbb;
-class RouteConfigTest : public ::testing::Test {
-public:
 
+class LocalTransportTest : public ::testing::Test {
+public:
     std::vector<Message*> received;
     static void MsgReceive(void* ctx, Link& link, Message* msg)
     {
-        RouteConfigTest* self = (RouteConfigTest*)ctx;
-                
+        LocalTransportTest* self = (LocalTransportTest*)ctx;
+
         self->received.push_back(msg);
         // dont let it get disposed
         msg->AddRef();
     }
 };
 
-class TestMessage : public pbb::Message
-{
-public:
-    virtual uint32_t GetProtcolCRC() { return 1; }
-    virtual uint32_t GetCode() { return 2; }
-    virtual void Copy(Message* other)
-    {
-        if (other==0 || this == other) return;
-        // not same message?
-        if (other->GetProtcolCRC() != this->GetProtcolCRC() ||
-            other->GetCode() != other->GetCode())
-            return;
-
-        TestMessage* otherMsg = (TestMessage*)other;
-        // do nothing..
-        this->data = otherMsg->data;
-    }
-
-    /// Start Data
-    uint32_t data;
-    /// End Data
-};
-
-class TEST_PROTOCOL
-{
-public:
-    static const uint32_t CRC = 0x00000001;    
-    static TEST_PROTOCOL inst;
-
-    PooledObject<TestMessage, TEST_PROTOCOL> mMsg;
-    int releases;
-    TEST_PROTOCOL()
-        : mMsg(this)
-    {
-        releases = 0;
-    }
-
-    static Message* CreateMessage(uint32_t code)
-    {
-        // the only copy
-        inst.releases = 0;
-        // someone just asked for a copy, add a ref
-        inst.mMsg.AddRef();
-        return &inst.mMsg;
-    }
-
-    void Release(Message* msg)
-    {
-        // refcount SHOULD be 0
-        releases++;
-
-    }
-};
-TEST_PROTOCOL TEST_PROTOCOL::inst;
-
-
 /**
     By default RouteConfig to route to anyone local connection configured 
     to receive the data
  */
-TEST_F(RouteConfigTest, LocalTransport)
+TEST_F(LocalTransportTest, LocalTransport)
 {
     RouteConfig rc;
     rc.ConfigureInbound<TEST_PROTOCOL>(this, MsgReceive);
@@ -128,7 +74,7 @@ class TestTransport : public ITransport
 /**
     Multiple Transports
  */
-TEST_F(RouteConfigTest, Transport)
+TEST_F(LocalTransportTest, Transport)
 {
     RouteConfig rc;
 
