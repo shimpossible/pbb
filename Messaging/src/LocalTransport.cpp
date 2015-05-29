@@ -13,7 +13,6 @@ namespace pbb
     {
         //TODO: Create a ref counted copy of the message and forward it
         Message* clone = Clone(msg);
-        clone->AddRef();
         mConfig.OnReceive(link, clone);
         clone->Release();
     }
@@ -31,13 +30,8 @@ namespace pbb
         uint32_t proto = msg->GetProtcolCRC();
         uint32_t code = msg->GetCode();
         Message* cloned = mConfig.CreateMessage(proto, code);
-        msg->Copy(msg);
+        cloned->Copy(msg);
         return cloned;
     }
 
-    LocalTransport& LocalTransport::LocalInstance()
-    {
-        static LocalTransport mInstance(RouteConfig::LocalInstance());
-        return mInstance;
-    }
 } /* namespace pbb */

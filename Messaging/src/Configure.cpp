@@ -4,5 +4,5 @@
 
 void Configure()
 {
-    pbb::LocalTransport::LocalInstance();
+
 }

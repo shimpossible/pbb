@@ -17,11 +17,9 @@ namespace pbb {
     * Keeps track of where to route messages and
       Transports to send message out on
     */
-    class RouteConfig
+    class PBB_API RouteConfig
     {
     public:
-
-        static RouteConfig& LocalInstance();
 
         RouteConfig();
         ~RouteConfig();
@@ -49,6 +47,7 @@ namespace pbb {
         template<typename PROTOCOL_T>
         void ConfigureInbound(void* ctx, MessageCallback fptr)
         {
+            // TODO: wrap access
             mIncommingHandlers[PROTOCOL_T::CRC].Add(ctx, fptr);
             mFactory[PROTOCOL_T::CRC] = &PROTOCOL_T::CreateMessage;
         }
@@ -74,7 +73,7 @@ namespace pbb {
         */
         void OnReceive(Link& src, Message* msg);
 
-    protected:
+    private:
 
         /**
         List of handlers allowing for easy enumeration

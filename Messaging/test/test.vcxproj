@@ -11,16 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{19E9263C-6BFF-4C77-A976-4DCA3853EB46}</ProjectGuid>
-    <RootNamespace>Messaging</RootNamespace>
-    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <ProjectGuid>{10DE67BE-2588-431B-93C6-834299E49FD0}</ProjectGuid>
+    <RootNamespace>test</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -42,17 +41,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>include;$(SolutionDir)/Common/include;$(IncludePath)</IncludePath>
+    <IncludePath>..\include;..\..\Common\include;..\..\extern\gtest-1.7.0\include;$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>..\..\extern\gtest-1.7.0\lib;$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(OutDir)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>PBB_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Messaging.lib;gtestMDd_2015.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -70,21 +70,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Atomic.h" />
-    <ClInclude Include="include\Endpoint.h" />
-    <ClInclude Include="include\ITransport.h" />
-    <ClInclude Include="include\LocalTransport.h" />
-    <ClInclude Include="include\Message.h" />
-    <ClInclude Include="include\MessageQueue.h" />
-    <ClInclude Include="include\RefCounted.h" />
-    <ClInclude Include="include\RouteConfig.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Configure.cpp" />
-    <ClCompile Include="src\LocalTransport.cpp" />
-    <ClCompile Include="src\Message.cpp" />
-    <ClCompile Include="src\MessageQueue.cpp" />
-    <ClCompile Include="src\RouteConfig.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\RouteConfigTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

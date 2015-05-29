@@ -6,7 +6,7 @@
 
 namespace pbb {
 
-    class Message
+    class PBB_API Message
     {
     public:
         Message();
@@ -37,6 +37,7 @@ namespace pbb {
     public:
         PooledObject(PoolT* pool)
             : mPool(pool)
+            , mRefCount(0) // no references, must call AddRef after creation
         {
         }
 
@@ -54,12 +55,12 @@ namespace pbb {
         */
         virtual void Release()
         {
-            assert(mRefCount > 0)
-                if ((--mRefCount) == 0)
-                {
-                    // Release back into pool
-                    mPool->Release(this);
-                }
+            assert(mRefCount > 0);
+            if ((--mRefCount) == 0)
+            {
+                // Release back into pool
+                mPool->Release(this);
+            }
         }
 
     protected:

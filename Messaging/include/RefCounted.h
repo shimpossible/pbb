@@ -5,17 +5,19 @@
 #include <assert.h>
 
 namespace pbb {
-    class RefCounted
+
+    template<typename BaseT>
+    class RefCounted : public BaseT
     {
     public:
-        void AddRef()
+        virtual void AddRef()
         {
             // Started below 0?
             assert(mRefCount >= 0);
 
             ++mRefCount;
         }
-        void Release()
+        virtual void Release()
         {
             --mRefCount;
             // Too many calls to Release

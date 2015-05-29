@@ -63,10 +63,4 @@ namespace pbb {
         mIncommingHandlers[crc].ForEach(src, msg);
     }
 
-    RouteConfig& RouteConfig::LocalInstance()
-    {
-        static RouteConfig mConfig;
-        return mConfig;
-    }
-
 } /* namespace pbb */

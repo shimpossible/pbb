@@ -28,4 +28,11 @@ namespace pbb
 {
     uint32_t PBB_API GetVersion();
 };
+
+#if defined(_MSC_VER)
+/////////////////////////////////////////////////////////////
+// MSVC specific code
+//
+    #pragma warning(disable:4251) // dll-interface errors
+#endif
 #endif /* __PBB_H__ */

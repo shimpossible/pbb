@@ -7,10 +7,19 @@ namespace pbb {
     class Link;
     class Message;
 
-    class ITransport
+    class PBB_API ITransport
     {
     public:
-        virtual void Transmit(Link&, Message*) = 0;
+        /**
+            Call by RouteConfig when a message is sent
+            @param link    Link that sent the message
+            @param message Message to be sent.
+         */
+        virtual void Transmit(Link& link, Message* message) = 0;
+        /**
+            Notified of Protocols that will be sent on this transport
+            RouteConfig will call this whenever RouteConfig::ConfigureOutbound is called
+         */
         virtual void ConfigureOutbound(uint32_t crc) = 0;
 
     protected:

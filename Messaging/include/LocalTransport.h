@@ -11,10 +11,9 @@ namespace pbb {
     /**
     Transports the message to the local endpoints
     */
-    class LocalTransport : public ITransport
+    class PBB_API LocalTransport : public ITransport
     {
     public:
-        static LocalTransport& LocalInstance();
 
         LocalTransport(RouteConfig& config);
 
