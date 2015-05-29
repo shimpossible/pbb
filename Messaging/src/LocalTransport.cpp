@@ -3,17 +3,16 @@
 
 namespace pbb
 {
-    LocalTransport::LocalTransport(RouteConfig& config)
-        : mConfig(config)
+    LocalTransport::LocalTransport(const MessageHandlerCollection& handlers)
+        : mHandlers(handlers)
     {
-        mConfig.ConfigureTransport(this);
     }
 
     void LocalTransport::Transmit(Link& link, Message* msg)
     {
         //TODO: Create a ref counted copy of the message and forward it
         Message* clone = Clone(msg);
-        mConfig.OnReceive(link, clone);
+        mHandlers.Dispatch(link, clone);
         clone->Release();
     }
 
@@ -29,7 +28,7 @@ namespace pbb
     {
         uint32_t proto = msg->GetProtcolCRC();
         uint32_t code = msg->GetCode();
-        Message* cloned = mConfig.CreateMessage(proto, code);
+        Message* cloned = mHandlers.Create(proto, code);
         cloned->Copy(msg);
         return cloned;
     }

@@ -4,18 +4,21 @@
 //#include "RouteConfig.h"
 #include "ITransport.h"
 #include "Message.h"
+#include "MessageHandlerCollection.h"
 
 namespace pbb {
 
-    class RouteConfig;
     /**
     Transports the message to the local endpoints
     */
     class PBB_API LocalTransport : public ITransport
     {
     public:
-
-        LocalTransport(RouteConfig& config);
+        /**
+            New LocalTransport
+            @param handlers Functsion to call when a message is received
+         */
+        LocalTransport(const MessageHandlerCollection& handlers);
 
         /**
         Called by RouteConfig when sending a message.  To Transmit
@@ -29,7 +32,7 @@ namespace pbb {
         /**
           The routeconfig we are configured with
          */
-        RouteConfig& mConfig;
+        const MessageHandlerCollection& mHandlers;
 
         /**
         Create a clone of a message based on protocol and id

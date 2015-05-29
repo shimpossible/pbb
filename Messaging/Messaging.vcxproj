@@ -70,21 +70,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Atomic.h" />
-    <ClInclude Include="include\Endpoint.h" />
-    <ClInclude Include="include\ITransport.h" />
-    <ClInclude Include="include\LocalTransport.h" />
-    <ClInclude Include="include\Message.h" />
-    <ClInclude Include="include\MessageQueue.h" />
-    <ClInclude Include="include\RefCounted.h" />
-    <ClInclude Include="include\RouteConfig.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="src\Configure.cpp" />
     <ClCompile Include="src\LocalTransport.cpp" />
     <ClCompile Include="src\Message.cpp" />
     <ClCompile Include="src\MessageQueue.cpp" />
     <ClCompile Include="src\RouteConfig.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\pbb\Endpoint.h" />
+    <ClInclude Include="include\pbb\ITransport.h" />
+    <ClInclude Include="include\pbb\Link.h" />
+    <ClInclude Include="include\pbb\LocalTransport.h" />
+    <ClInclude Include="include\pbb\Message.h" />
+    <ClInclude Include="include\pbb\MessageQueue.h" />
+    <ClInclude Include="include\pbb\RefCounted.h" />
+    <ClInclude Include="include\pbb\RouteConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

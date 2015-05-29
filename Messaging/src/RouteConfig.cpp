@@ -2,8 +2,9 @@
 
 namespace pbb {
     RouteConfig::RouteConfig()
-        : mLocalTransport(LocalTransport(*this))
+        : mLocalTransport(this->mIncommingHandlers)
     {
+        ConfigureTransport(mLocalTransport);
     }
 
     RouteConfig::~RouteConfig()
@@ -13,9 +14,9 @@ namespace pbb {
     * Configure a Transport for this RouteConfig
     * @param tport  Instance of a ITransport class
     */
-    void RouteConfig::ConfigureTransport(ITransport* tport)
+    void RouteConfig::ConfigureTransport(ITransport& tport)
     {
-        mTransport.push_back(tport);
+        mTransport.push_back(&tport);
     }
 
 
@@ -35,32 +36,6 @@ namespace pbb {
         {
             (*it)->Transmit(src, msg);
         }
-    }
-
-    /**
-    * Create a message given the protocol CRC and code
-    @param proto CRC of protocol
-    @param code  message CODE specific to protcol
-    @returns 0 if message can't be created
-    */
-    Message* RouteConfig::CreateMessage(uint32_t proto, uint32_t code)
-    {
-        std::map<uint32_t, Message* (*)(uint32_t)>::iterator it = mFactory.find(proto);
-        if (it != mFactory.end())
-        {
-            return (it->second)(code);
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    void RouteConfig::OnReceive(Link& src, Message* msg)
-    {
-        // Send a message to ALL clients that care about 
-        uint32_t crc = msg->GetProtcolCRC();
-        mIncommingHandlers[crc].ForEach(src, msg);
     }
 
 } /* namespace pbb */

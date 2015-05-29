@@ -37,6 +37,11 @@ public:
         this->data = otherMsg->data;
     }
 
+    virtual Message* Create()
+    {
+        return new TestMessage();
+    }
+
     /// Start Data
     uint32_t data;
     /// End Data
@@ -134,7 +139,7 @@ TEST_F(RouteConfigTest, Transport)
 
     // Add test transport
     TestTransport tport;    
-    rc.ConfigureTransport(&tport);
+    rc.ConfigureTransport(tport);
 
     rc.ConfigureInbound<TEST_PROTOCOL>(this, MsgReceive);
 

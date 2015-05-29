@@ -6,12 +6,10 @@
 #include "ITransport.h"
 #include "LocalTransport.h"
 
-#include <map>
+#include "MessageHandlerCollection.h"
 #include <list>
 
 namespace pbb {
-
-    typedef void(*MessageCallback)(void* ctx, Link&, Message*);
 
     /**
     * Keeps track of where to route messages and
@@ -28,7 +26,7 @@ namespace pbb {
          * Configure a Transport for this RouteConfig
          * @param tport  Instance of a ITransport class
          */
-        void ConfigureTransport(ITransport* tport);
+        void ConfigureTransport(ITransport& tport);
 
         template<typename PROTOCOL_T>
         void ConfigureOutbound()
@@ -45,11 +43,10 @@ namespace pbb {
         }
 
         template<typename PROTOCOL_T>
-        void ConfigureInbound(void* ctx, MessageCallback fptr)
+        void ConfigureInbound(void* ctx, MessageHandler fptr)
         {
             // TODO: wrap access
-            mIncommingHandlers[PROTOCOL_T::CRC].Add(ctx, fptr);
-            mFactory[PROTOCOL_T::CRC] = &PROTOCOL_T::CreateMessage;
+            mIncommingHandlers.Add(PROTOCOL_T::CRC, PROTOCOL_T::CreateMessage, ctx, fptr);
         }
 
         /**
@@ -60,59 +57,16 @@ namespace pbb {
         */
         void Send(Link& src, Message* msg);
 
-        /**
-         * Create a message given the protocol CRC and code
-         @param proto CRC of protocol
-         @param code  message CODE specific to protcol
-         @returns 0 if message can't be created
-         */
-        Message* CreateMessage(uint32_t proto, uint32_t code);
-
-        /*
-        Call when a message is received
-        */
-        void OnReceive(Link& src, Message* msg);
-
-    private:
-
-        /**
-        List of handlers allowing for easy enumeration
-        */
-        class DelegateList
+        const MessageHandlerCollection& MessageHandlers()
         {
-        public:
-            void Add(void* ctx, MessageCallback fptr)
-            {
-                T t;
-                t.ctx = ctx;
-                t.fptr = fptr;
-                mData.push_back(t);
-            }
+            return mIncommingHandlers;
+        }
+    private:
+        // Who to notify when a message is received
+        MessageHandlerCollection mIncommingHandlers;
 
-            void ForEach(Link& link, Message* msg)
-            {
-                std::list<T>::iterator it;
-                for (it = mData.begin();
-                it != mData.end();
-                    it++)
-                {
-                    it->fptr(it->ctx, link, msg);
-                }
-            }
-        protected:
-
-            struct T {
-                void* ctx;
-                MessageCallback fptr;
-            };
-            std::list<T> mData;
-        };
-        // Messages that will be received
-        std::map<uint32_t, DelegateList> mIncommingHandlers;
         // Messages that will be sent
         std::list<uint32_t> mOutgoingHandlers;
-        // Message Factories
-        std::map<uint32_t, Message* (*)(uint32_t)> mFactory;
         // Transports to send messages on
         std::list<ITransport*> mTransport;
 

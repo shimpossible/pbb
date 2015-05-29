@@ -27,29 +27,14 @@ public:
  */
 TEST_F(LocalTransportTest, LocalTransport)
 {
-    RouteConfig rc;
-    rc.ConfigureInbound<TEST_PROTOCOL>(this, MsgReceive);
 
     TestMessage myMsg;
     myMsg.data = 0x1234;
     pbb::Link myLink;
-
-    rc.Send(myLink, &myMsg);
-
-    // Ensure it routed to the MsgReceive function
-    ASSERT_EQ(1, this->received.size());
-    // Ensure it gave a NEW instance
-    ASSERT_NE(this->received[0], &myMsg);
-    TestMessage* other = (TestMessage*)this->received[0];
-    ASSERT_EQ(0x1234, other->data);
-
-    ASSERT_EQ(0, TEST_PROTOCOL::inst.releases);
-    // Ensure Release works..
-    this->received[0]->Release();
-
-    ASSERT_EQ(1, TEST_PROTOCOL::inst.releases);
+    MessageHandlerCollection handlers;
+    LocalTransport transport(handlers);
+    
 }
-
 
 class TestTransport : public ITransport
 {
@@ -71,46 +56,3 @@ class TestTransport : public ITransport
         }
 
 };
-/**
-    Multiple Transports
- */
-TEST_F(LocalTransportTest, Transport)
-{
-    RouteConfig rc;
-
-    // Add test transport
-    TestTransport tport;    
-    rc.ConfigureTransport(&tport);
-
-    rc.ConfigureInbound<TEST_PROTOCOL>(this, MsgReceive);
-
-    TestMessage myMsg;
-    TestMessage* other;
-    myMsg.data = 0x1234;
-    pbb::Link myLink;
-
-    rc.Send(myLink, &myMsg);
-
-    // Ensure it routed to the local MsgReceive function
-    ASSERT_EQ(1, this->received.size());
-    // Ensure it gave a NEW instance
-    ASSERT_NE(this->received[0], &myMsg);
-    other = (TestMessage*)this->received[0];
-    ASSERT_EQ(0x1234, other->data);
-
-    // Ensure release works, as expectd
-    ASSERT_EQ(0, TEST_PROTOCOL::inst.releases);
-    other->Release();
-    ASSERT_EQ(1, TEST_PROTOCOL::inst.releases);
-
-    // Test it also routed to the TestTransport
-    ASSERT_EQ(1, tport.received.size());
-    other = (TestMessage*)tport.received[0];
-    // ensure data matches
-    ASSERT_EQ(0x1234, other->data);
-    
-    other->Release();
-    // Should still be 1, since 'other' should be a duplicate of myMsg
-    ASSERT_EQ(1, TEST_PROTOCOL::inst.releases);
-
-}

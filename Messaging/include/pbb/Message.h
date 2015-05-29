@@ -13,7 +13,12 @@ namespace pbb {
         virtual ~Message();
         virtual uint32_t GetProtcolCRC() = 0;
         virtual uint32_t GetCode() = 0;
+
+        //! Copy other to this
         virtual void Copy(Message* other) = 0;
+
+        //! Create a new instance of this message
+        virtual Message* Create() = 0;
 
         /**
           Implement for pooled messages

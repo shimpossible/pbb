@@ -20,6 +20,11 @@ public:
         this->data = otherMsg->data;
     }
 
+    virtual Message* Create() 
+    {
+        return new TestMessage();
+    }
+
     /// Start Data
     uint32_t data;
     /// End Data
