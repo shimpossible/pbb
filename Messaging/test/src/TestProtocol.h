@@ -34,31 +34,16 @@ class TEST_PROTOCOL
 {
 public:
     static const uint32_t CRC = 0x00000001;
-    static TEST_PROTOCOL inst;
 
-    pbb::PooledObject<TestMessage, TEST_PROTOCOL> mMsg;
-    int releases;
-    TEST_PROTOCOL()
-        : mMsg(this)
+    TEST_PROTOCOL()        
     {
-        releases = 0;
     }
 
     static pbb::Message* CreateMessage(uint32_t code)
     {
-        // the only copy
-        inst.releases = 0;
-        // someone just asked for a copy, add a ref
-        inst.mMsg.AddRef();
-        return &inst.mMsg;
+        return new TestMessage();
     }
 
-    void Release(pbb::Message* msg)
-    {
-        // refcount SHOULD be 0
-        releases++;
-
-    }
 };
 
 #endif

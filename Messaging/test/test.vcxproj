@@ -73,6 +73,7 @@
     <ClCompile Include="src\LocalTransportTest.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RouteConfigTest.cpp" />
+    <ClCompile Include="src\TestProtocol.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

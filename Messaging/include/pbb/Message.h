@@ -5,6 +5,14 @@
 #include <assert.h>
 
 namespace pbb {
+    class Message;
+
+    class PBB_API IMessagePool
+    {
+    public:
+        virtual Message* GetMessage(uint32_t protocol, uint32_t code)=0;
+        virtual void ReleaseMessage(Message* msg)=0;
+    };
 
     class PBB_API Message
     {
@@ -17,20 +25,46 @@ namespace pbb {
         //! Copy other to this
         virtual void Copy(Message* other) = 0;
 
-        //! Create a new instance of this message
-        virtual Message* Create() = 0;
+        void AddToPool(IMessagePool& pool)
+        {
+            mRefCount = 0;
+            mPool = &pool;
+        }
+        /**
+        Add a reference to the object
+        */
+        void AddRef()
+        {
+            if (mPool)
+            {
+                ++mRefCount;
+                assert(mRefCount > 0);
+            }
+        }
 
-        /**
-          Implement for pooled messages
+         /**
+         Release a reference.  When count goes to 0
+         it is released back to pool
          */
-        virtual void AddRef() {}
-        /**
-         Implement for pooled messages
-         */
-        virtual void Release() {}
+        void Release()
+        {
+            if (mPool)
+            {
+                assert(mRefCount > 0);
+                if ((--mRefCount) == 0)
+                {
+                    // Release back into pool
+                    mPool->ReleaseMessage(this);
+                }
+            }
+        }
+
     protected:
+        Atomic<int32_t> mRefCount;
+        IMessagePool*   mPool;    // Do we have a message pool?
     };
 
+#if 0
     /**
         Allow an object to be pooled
         @param BaseT  base class
@@ -72,6 +106,6 @@ namespace pbb {
         PoolT* mPool;
         Atomic<int32_t> mRefCount;
     };
-
+#endif
 } /* namespace pbb */
 #endif /* __PBB_MESSAGE_H__ */

@@ -11,7 +11,7 @@ namespace pbb {
     /**
     Transports the message to the local endpoints
     */
-    class PBB_API LocalTransport : public ITransport
+    class PBB_API LocalTransport : public ITransport , IMessagePool
     {
     public:
         /**
@@ -27,6 +27,9 @@ namespace pbb {
         virtual void Transmit(Link& link, Message* msg);
 
         virtual void ConfigureOutbound(uint32_t crc);
+
+        virtual Message* GetMessage(uint32_t protocol, uint32_t code);
+        virtual void ReleaseMessage(Message* msg);
     protected:
 
         /**
@@ -38,6 +41,8 @@ namespace pbb {
         Create a clone of a message based on protocol and id
         */
         Message* Clone(Message* msg);
+
+        std::map<uint32_t, std::list<Message*>> mMessagePool;
     private:
     };
 
