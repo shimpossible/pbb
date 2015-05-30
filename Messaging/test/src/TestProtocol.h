@@ -1,6 +1,9 @@
 #ifndef __TEST_PROTOCOL_H__
 #define __TEST_PROTOCOL_H__
 #include <pbb/Message.h>
+#include <pbb/ITransport.h>
+
+#include <vector>
 
 class TestMessage : public pbb::Message
 {
@@ -20,11 +23,6 @@ public:
         this->data = otherMsg->data;
     }
 
-    virtual Message* Create() 
-    {
-        return new TestMessage();
-    }
-
     /// Start Data
     uint32_t data;
     /// End Data
@@ -42,6 +40,28 @@ public:
     static pbb::Message* CreateMessage(uint32_t code)
     {
         return new TestMessage();
+    }
+
+};
+
+
+class TestTransport : public pbb::ITransport
+{
+public:
+    std::vector<pbb::Message*> received;
+    std::vector<uint32_t> outbound;
+    TestTransport()
+    {
+    }
+    virtual void Transmit(pbb::Link&, pbb::Message* msg)
+    {
+        msg->AddRef();
+        received.push_back(msg);
+    }
+
+    virtual void ConfigureOutbound(uint32_t crc)
+    {
+        outbound.push_back(crc);
     }
 
 };

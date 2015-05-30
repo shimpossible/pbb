@@ -46,27 +46,6 @@ TEST_F(RouteConfigTest, LocalTransport)
 
 }
 
-
-class TestTransport : public ITransport
-{
-    public:     
-        std::vector<Message*> received;
-        std::vector<uint32_t> outbound;
-        TestTransport()
-        {
-        }
-        virtual void Transmit(Link&, Message* msg)
-        {
-            msg->AddRef();
-            received.push_back(msg);
-        }
-
-        virtual void ConfigureOutbound(uint32_t crc)
-        {
-            outbound.push_back(crc);
-        }
-
-};
 /**
     Multiple Transports
  */

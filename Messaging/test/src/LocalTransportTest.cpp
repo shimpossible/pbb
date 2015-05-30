@@ -27,20 +27,21 @@ public:
  */
 TEST_F(LocalTransportTest, Transmit)
 {
-
+    //////////////////////////
+    // setup
     TestMessage myMsg;
     myMsg.data = 0x1234;
     pbb::Link myLink;
-
-    // route messages to our MsgReceive
     MessageHandlerCollection handlers;
-    handlers.Add(TEST_PROTOCOL::CRC, TEST_PROTOCOL::CreateMessage, this, &MsgReceive);
-
-    // the object under test
+    handlers.Add(TEST_PROTOCOL::CRC, TEST_PROTOCOL::CreateMessage, this, &MsgReceive);    
     LocalTransport transport(handlers);
 
-    // Send a message through local transport 
+    //////////////////////////
+    // Method to test
     transport.Transmit(myLink, &myMsg);    
+
+    //////////////////////////
+    // test results
 
     // MsgReceived should have been called 1 time
     ASSERT_EQ(1, received.size());
@@ -56,23 +57,3 @@ TEST_F(LocalTransportTest, Transmit)
     ASSERT_EQ(0, received[0]->Release());
 }
 
-class TestTransport : public ITransport
-{
-    public:     
-        std::vector<Message*> received;
-        std::vector<uint32_t> outbound;
-        TestTransport()
-        {
-        }
-        virtual void Transmit(Link&, Message* msg)
-        {
-            msg->AddRef();
-            received.push_back(msg);
-        }
-
-        virtual void ConfigureOutbound(uint32_t crc)
-        {
-            outbound.push_back(crc);
-        }
-
-};
