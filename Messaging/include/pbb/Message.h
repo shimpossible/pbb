@@ -57,8 +57,8 @@ namespace pbb {
                     // Release back into pool
                     mPool->ReleaseMessage(this);
                 }
-                return mRefCount;
             }
+            return mRefCount;
         }
 
     protected:
