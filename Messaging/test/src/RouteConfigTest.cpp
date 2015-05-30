@@ -94,15 +94,20 @@ TEST_F(RouteConfigTest, Transport)
     other = (TestMessage*)this->received[0];
     ASSERT_EQ(0x1234, other->data);
 
-    other->Release();
+    ASSERT_EQ(2, other->AddRef());
+    ASSERT_EQ(1, other->Release());
+    ASSERT_EQ(0, other->Release());
 
     // Test it also routed to the TestTransport
     ASSERT_EQ(1, tport.received.size());
     other = (TestMessage*)tport.received[0];
     // ensure data matches
     ASSERT_EQ(0x1234, other->data);
-    
-    other->Release();
+
+    // Test Transport doesn't use a pooled message
+    ASSERT_EQ(0, other->AddRef());
+    ASSERT_EQ(0, other->Release());
+
     // Should still be 1, since 'other' should be a duplicate of myMsg
 
 }

@@ -50,8 +50,10 @@ TEST_F(LocalTransportTest, Transmit)
     // duplicate copy
     ASSERT_NE(&myMsg, received[0]);
 
-    // Pooled message
-    received[0]->Release();
+    // Pooled message, check we only have 1 ref
+    ASSERT_EQ(2, received[0]->AddRef());
+    ASSERT_EQ(1, received[0]->Release());
+    ASSERT_EQ(0, received[0]->Release());
 }
 
 class TestTransport : public ITransport

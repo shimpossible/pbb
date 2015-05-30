@@ -33,20 +33,21 @@ namespace pbb {
         /**
         Add a reference to the object
         */
-        void AddRef()
+        uint32_t AddRef()
         {
             if (mPool)
             {
                 ++mRefCount;
                 assert(mRefCount > 0);
             }
+            return mRefCount;
         }
 
          /**
          Release a reference.  When count goes to 0
          it is released back to pool
          */
-        void Release()
+        uint32_t Release()
         {
             if (mPool)
             {
@@ -56,6 +57,7 @@ namespace pbb {
                     // Release back into pool
                     mPool->ReleaseMessage(this);
                 }
+                return mRefCount;
             }
         }
 
