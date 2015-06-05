@@ -9,11 +9,12 @@ namespace pbb
     class PBB_API IRunnable
     {
     public:
-        virtual ~IRunnable() {}
         // Must be implemented
         virtual void Run() = 0;
         // Implement if thread supports cancelation
         virtual void Cancel() {};
+    protected:
+        virtual ~IRunnable() {}
     };
 
 

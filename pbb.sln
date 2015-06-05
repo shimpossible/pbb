@@ -11,6 +11,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Messaging", "Messaging\Mess
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "Messaging\test\test.vcxproj", "{10DE67BE-2588-431B-93C6-834299E49FD0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net", "Net", "{6AB1C1E4-2930-4748-87DF-3A673C1D3A5E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Net", "Net\Net.vcxproj", "{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "Net\test\test.vcxproj", "{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -33,8 +39,20 @@ Global
 		{10DE67BE-2588-431B-93C6-834299E49FD0}.Debug|x86.Build.0 = Debug|Win32
 		{10DE67BE-2588-431B-93C6-834299E49FD0}.Release|x86.ActiveCfg = Release|Win32
 		{10DE67BE-2588-431B-93C6-834299E49FD0}.Release|x86.Build.0 = Release|Win32
+		{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}.Debug|x86.ActiveCfg = Debug|Win32
+		{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}.Debug|x86.Build.0 = Debug|Win32
+		{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}.Release|x86.ActiveCfg = Release|Win32
+		{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}.Release|x86.Build.0 = Release|Win32
+		{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}.Debug|x86.ActiveCfg = Debug|Win32
+		{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}.Debug|x86.Build.0 = Debug|Win32
+		{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}.Release|x86.ActiveCfg = Release|Win32
+		{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7D6FFBB1-C20E-4643-A09B-CD786A229D3C} = {6AB1C1E4-2930-4748-87DF-3A673C1D3A5E}
+		{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA} = {6AB1C1E4-2930-4748-87DF-3A673C1D3A5E}
 	EndGlobalSection
 EndGlobal
