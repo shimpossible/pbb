@@ -19,9 +19,17 @@
 
 // Define library import/export macros
 #ifdef PBB_EXPORT
-    #define PBB_API _declspec(dllexport)
+    #ifdef __GNUC__
+        #define PBB_API __attribute__((visibility ("default") ))
+    #else
+        #define PBB_API __declspec(dllexport)
+    #endif
 #else
-    #define PBB_API __declspec(dllimport)
+    #ifdef __GNUC__
+        #define PBB_API
+    #else
+        #define PBB_API __declspec(dllimport)
+    #endif
 #endif
 
 namespace pbb
