@@ -3,6 +3,11 @@
 #include <pbb/pbb.h>
 #include <pbb/delegate.h>
 
+#if PBB_OS_IS_WINDOWS
+#else
+    #include <pthread.h>
+#endif
+
 namespace pbb
 {
 
@@ -17,6 +22,11 @@ namespace pbb
         virtual ~IRunnable() {}
     };
 
+#if PBB_OS_IS_WINDOWS
+    typedef void* pbb_thread_handle_t;
+#else
+    typedef pthread_t  pbb_thread_t;
+#endif
 
     class PBB_API Thread
     {
@@ -51,11 +61,11 @@ namespace pbb
     private:
         delegate*   mDelegate;
         uint32_t    mPriority;
-        void*       mThread;  // Opaque thread handle
+        pbb_thread_t  mThread;  // Opaque thread handle
         uint32_t    mThreadId;
         const char* mName;
 
-        void StartThread(uint32_t(__stdcall *start)(void*),
+        void StartThread( uint32_t (__stdcall *start)(void*),
             uint32_t stack, int32_t priority, uint32_t affinity, const char* name = NULL);
 
         static unsigned __stdcall ThreadStart(void* data)

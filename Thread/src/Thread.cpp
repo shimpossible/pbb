@@ -1,9 +1,10 @@
-#include <pbb/thread.h>
+#include <pbb/Thread.h>
 #include <assert.h>
 
-#define LEAN_AND_MEAN
-#include <Windows.h>
-#include <process.h>
+#ifdef PBB_OS_IS_WINDOWS
+  #define LEAN_AND_MEAN
+  #include <Windows.h>
+  #include <process.h>
 
 /// See <http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx>
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
@@ -34,30 +35,56 @@ void SetThreadName(DWORD dwThreadID, const char* threadName)
     {
     }
 }
+#else
+    #include <pthread.h>
+    // linux
+    #define SetThreadName pthread_setname_np
+#endif
+
+#if PBB_OS_IS_WINDOWS
+	#define TLSKEY DWRD
+	int TLS_CREATE_KEY(DWORD x)
+        {
+           x = TlsAlloc();
+           return x == TLS_OUT_OF_INDEXES;
+        }
+	#define TLS_RELEASE_KEY(x) TlsFree(x)
+	#define TLS_SET_KEY(x,y)   TlsSetValue((x), (y))
+	#define TLS_GET_KEY(x)   TlsGetValue((x))
+#else
+	#define TLSKEY pthread_key_t
+	int TLS_CREATE_KEY(pthread_key_t x)
+        {
+           return pthread_key_create(&(x), NULL);
+        }
+	#define TLS_RELEASE_KEY(x) pthread_key_delete( x )
+	#define TLS_SET_KEY(x,y)   pthread_setspecific((x), (y))
+	#define TLS_GET_KEY(x)   pthread_getspecific((x))
+#endif
 
 class TLSHolder
 {
 public:
     TLSHolder()
-        : mSlot( TlsAlloc() )
-    {        
-        assert(mSlot != TLS_OUT_OF_INDEXES);
+    {
+	// success
+        assert( TLS_CREATE_KEY(mSlot) == 0);
     }
     ~TLSHolder()
     {
-        TlsFree(mSlot);
+        TLS_RELEASE_KEY(mSlot);
     }
 
     void set(pbb::Thread* thread) const
     {
-        TlsSetValue(mSlot, thread);
+        TLS_SET_KEY(mSlot, thread);
     }
     pbb::Thread* get() const
     {
-        return reinterpret_cast<pbb::Thread*>(TlsGetValue(mSlot));
+        return reinterpret_cast<pbb::Thread*>(TLS_GET_KEY(mSlot));
     }
 protected:
-    DWORD mSlot;
+    TLSKEY mSlot;
 };
 
 const TLSHolder sHolder;
@@ -75,14 +102,26 @@ pbb::Thread::Thread()
 }
 pbb::Thread::~Thread()
 {
+#if PBB_OS_IS_WINDOWS
     if(mThread) CloseHandle(mThread);
+#else
+    if(mThread)
+    {
+         pthread_detach(mThread);
+    }
+#endif
     mThread = 0;
 }
 void pbb::Thread::StartThread(uint32_t(__stdcall *start)(void*),
     uint32_t stack, int32_t priority, uint32_t affinity, const char* name)
 {
     // http://www.viva64.com/en/d/0102/print/
-    mThread = (HANDLE)_beginthreadex(NULL, stack, start, this, 0, &mThreadId);
+#if PBB_OS_IS_WINDOWS
+    mThread = (pbb_thread_t)_beginthreadex(NULL, stack, start, this, 0, &mThreadId);
+#else
+    pthread_attr_t attr;
+    pthread_create(&mThread, &attr, (void* (*)(void*))start, this);
+#endif
 }
 
 const char* pbb::Thread::GetName()
@@ -93,18 +132,26 @@ const char* pbb::Thread::GetName()
 uint32_t pbb::Thread::Join()
 {
     assert(mThread);
-    
+ 
+#if PBB_OS_IS_WINDOWS   
     WaitForSingleObject(mThread, INFINITE);
     //DWORD exitCode = 0;
     //GetExitCodeThread(mThread, &exitCode);
     CloseHandle(mThread);
+#else
+    pthread_join(mThread, 0);
+#endif
     mThread = 0;
     return 0;
 }
 
 void pbb::Thread::SetPriority(int32_t priority)
 {
+#if PBB_OS_IS_WINDOWS
     SetThreadPriority(mThread, priority);
+#else
+    pthread_setschedprio(mThread, priority);
+#endif
 }
 
 void pbb::Thread::SetName(const char* name)

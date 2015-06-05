@@ -42,5 +42,8 @@ namespace pbb
 // MSVC specific code
 //
     #pragma warning(disable:4251) // dll-interface errors
+#else
+    // no stdcall outside of windows
+    #define __stdcall
 #endif
 #endif /* __PBB_H__ */

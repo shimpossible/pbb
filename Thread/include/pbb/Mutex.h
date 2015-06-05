@@ -4,7 +4,9 @@
 #include <pbb/platform.h>
 
 #ifdef PBB_OS_IS_WINDOWS
-#include <Windows.h>
+    #include <Windows.h>
+#else
+    #include <pthread.h>
 #endif
 
 namespace pbb
@@ -31,6 +33,8 @@ namespace pbb
 #ifdef PBB_OS_IS_WINDOWS
         CRITICAL_SECTION  mMutex;
         Type              mType;
+#else
+        pthread_mutex_t   mMutex;
 #endif
     private:
         // No Copy
