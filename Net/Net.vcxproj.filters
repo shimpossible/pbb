@@ -15,21 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\pbb\config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\pbb\delegate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\pbb\pbb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\pbb\platform.h">
+    <ClInclude Include="include\pbb\net\Socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pbb.cpp">
+    <ClCompile Include="src\Socket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

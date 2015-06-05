@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7E68EF14-77F2-451D-9A98-7654309C5FA4}</ProjectGuid>
-    <RootNamespace>Common</RootNamespace>
+    <ProjectGuid>{19E9263C-6BFF-4C77-A976-4DCA3853EB46}</ProjectGuid>
+    <RootNamespace>Messaging</RootNamespace>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -42,7 +42,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <IncludePath>include;$(SolutionDir)/Common/include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,13 +70,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\pbb\config.h" />
-    <ClInclude Include="include\pbb\delegate.h" />
-    <ClInclude Include="include\pbb\pbb.h" />
-    <ClInclude Include="include\pbb\platform.h" />
+    <ClCompile Include="src\Configure.cpp" />
+    <ClCompile Include="src\LocalTransport.cpp" />
+    <ClCompile Include="src\Message.cpp" />
+    <ClCompile Include="src\MessageQueue.cpp" />
+    <ClCompile Include="src\RouteConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\pbb.cpp" />
+    <ClInclude Include="include\pbb\Endpoint.h" />
+    <ClInclude Include="include\pbb\ITransport.h" />
+    <ClInclude Include="include\pbb\Link.h" />
+    <ClInclude Include="include\pbb\LocalTransport.h" />
+    <ClInclude Include="include\pbb\Message.h" />
+    <ClInclude Include="include\pbb\MessageQueue.h" />
+    <ClInclude Include="include\pbb\RefCounted.h" />
+    <ClInclude Include="include\pbb\RouteConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

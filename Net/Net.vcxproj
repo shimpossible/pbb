@@ -10,9 +10,15 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\pbb\net\Socket.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Socket.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7E68EF14-77F2-451D-9A98-7654309C5FA4}</ProjectGuid>
-    <RootNamespace>Common</RootNamespace>
+    <ProjectGuid>{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}</ProjectGuid>
+    <RootNamespace>Net</RootNamespace>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -42,7 +48,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Common\include;include;$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -69,15 +75,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="include\pbb\config.h" />
-    <ClInclude Include="include\pbb\delegate.h" />
-    <ClInclude Include="include\pbb\pbb.h" />
-    <ClInclude Include="include\pbb\platform.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\pbb.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
