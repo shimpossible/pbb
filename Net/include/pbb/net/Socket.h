@@ -2,24 +2,43 @@
 #define __PBB_NET_SOCKET_H__
 #include "pbb/pbb.h"
 #include <vector>
+#include <string.h> // memcpy
 
-// TODO: only on windows
-#include <WinSock2.h>
-#include <ws2ipdef.h> // ipv6
-#include <Ws2tcpip.h>
+#ifdef PBB_OS_IS_WINDOWS
+   #include <WinSock2.h>
+   #include <ws2ipdef.h> // ipv6
+   #include <Ws2tcpip.h>
+#else
+   #include <sys/types.h>
+   #include <sys/socket.h>
+   #include <errno.h>
+   #include <netinet/in.h>
+   #include <arpa/inet.h>
+   #include <unistd.h>
+   #include <fcntl.h>
+   #include <sys/ioctl.h>
+   #include <poll.h>
+#endif
 namespace pbb {
 namespace net {
 
+#ifdef PBB_OS_IS_WINDOWS
     typedef SOCKET        pbb_socket_t;
+#else    
+    typedef int           pbb_socket_t;
+#endif
     typedef struct pollfd pdd_pollfd_t;
     class Socket;
     typedef std::vector<Socket*> SocketCollection;
 
-#define PBB_INVALID_SOCKET  INVALID_SOCKET
+#ifndef INVALID_SOCKET   
+#define INVALID_SOCKET (-1)
+#endif
+
     enum Error
     {
-        // TODO: only on windows
         PBB_ESUCCESS         = 0, /* no error */
+#ifdef PBB_OS_IS_WINDOWS
         PBB_EINTR            = WSAEINTR,
         PBB_EACCES           = WSAEACCES,
         PBB_EFAULT           = WSAEFAULT,
@@ -58,7 +77,15 @@ namespace net {
         PBB_HOST_NOT_FOUND   = WSAHOST_NOT_FOUND,
         PBB_TRY_AGAIN        = WSATRY_AGAIN,
         PBB_NO_RECOVERY      = WSANO_RECOVERY,
-        PBB_NO_DATA          = WSANO_DATA,
+        PBB_NO_DATA          = WSANO_DATA,a
+#else
+	PBB_EINTR            = EINTR,
+	PBB_EACCES           = EACCES,
+        PBB_EFAULT           = EFAULT,
+	PBB_EMFILE           = EMFILE,
+
+#define SOCKET_ERROR (-1)
+#endif
     };
 
     class PBB_API SocketAddress
@@ -164,18 +191,32 @@ namespace net {
          */
         Error SetBlocking(bool enable)
         {
+#ifdef PBB_OS_IS_WINDOWS
             // 1 - enable NON blocking
             // 0 - disable
             uint32_t arg = enable ? 0 : 1;
             return Ioctl(FIONBIO, arg);
+#else
             // TODO: unix = O_NONBLOCK
+            if(enable)
+            {
+            }
+            else
+            {
+                fcntl(mSocket, F_SETFL, O_NONBLOCK);
+            }
+#endif
         }
 
         Error Ioctl(uint32_t cmd, uint32_t& arg)
         {
+#ifdef PBB_OS_IS_WINDOWS
             if (ioctlsocket(mSocket, cmd, (u_long*)&arg) == SOCKET_ERROR)
                 return LastError();
-
+#else
+            if (ioctl(mSocket, cmd, &arg) != 0)
+                return LastError();
+#endif
             return PBB_ESUCCESS;
         }
         /*
@@ -207,7 +248,7 @@ namespace net {
         Error GetError()
         {
             Error err = PBB_ESUCCESS;
-            int len = sizeof(err);
+            socklen_t len = sizeof(err);
             int r = getsockopt(mSocket, SOL_SOCKET, SO_ERROR, (char*)&err, &len);
             if (r == INVALID_SOCKET)
             {
@@ -223,9 +264,9 @@ namespace net {
             SocketCollection& errSocks,
             int timeout, int& ready)
         {
-            FD_SET readSet;
-            FD_SET writeSet;
-            FD_SET errorSet;
+            fd_set readSet;
+            fd_set writeSet;
+            fd_set errorSet;
             FD_ZERO(&readSet);
             FD_ZERO(&writeSet);
             FD_ZERO(&errorSet);
@@ -289,7 +330,11 @@ namespace net {
          */
         static Error Poll(pdd_pollfd_t* fdarray, uint32_t fds, int timeout, int& ready)
         {
+#ifdef PBB_OS_IS_WINDOWS
             int status = WSAPoll(fdarray, fds, timeout);
+#else
+            int status = poll(fdarray, fds, timeout);
+#endif
             if (status == SOCKET_ERROR)
             {
                 return LastError();

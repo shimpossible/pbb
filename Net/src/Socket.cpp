@@ -1,9 +1,10 @@
 #include "pbb/net/Socket.h"
 
+#ifdef PBB_OS_IS_WINDOWS
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
-
 #pragma comment( lib, "ws2_32.lib" ) // linker must use this lib for sockets
+#endif
 
 namespace pbb {
 namespace net {
@@ -42,17 +43,21 @@ namespace net {
 
     Socket::~Socket()
     {
-        closesocket(mSocket);
+        Close();
     }
 
     Error Socket::LastError()
     {
+#ifdef PBB_IS_WINDOWS_OS
         return (Error)WSAGetLastError();
+#else
+	return (Error)errno;
+#endif
     }
 
     Error Socket::PeerAddress(SocketAddress& address)
     {        
-        int len = sizeof(address.mIPv6);
+        socklen_t len = sizeof(address.mIPv6);
         if (::getpeername(mSocket, (sockaddr*)&address.mIPv4, &len) == SOCKET_ERROR)
         {
             return LastError();
@@ -62,7 +67,7 @@ namespace net {
 
     Error Socket::Address(SocketAddress& address)
     {
-        int len = sizeof(address.mIPv6);
+        socklen_t len = sizeof(address.mIPv6);
         if (::getsockname(mSocket, (sockaddr*)&address.mIPv4, &len) == SOCKET_ERROR)
         {
             return LastError();
@@ -88,7 +93,11 @@ namespace net {
 
     Error Socket::Close()
     {
+#ifdef PBB_OS_IS_WINDOWS
         if (::closesocket(mSocket) == SOCKET_ERROR)
+#else
+        if (::close(mSocket) != 0)
+#endif
         {
             return LastError();
         }

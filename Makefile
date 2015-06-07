@@ -1,9 +1,8 @@
-include include.mk
+#include include.mk
 
-all: pbb-Common pbb-Thread
+LIB_NAMES := Common Thread Messaging
 
+all: $(LIB_NAMES)
 
-pbb-Common:
-	$(MAKE) -C Common
-pbb-Thread:
-	$(MAKE) -C Thread
+$(LIB_NAMES):
+	make -C $@
