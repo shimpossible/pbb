@@ -191,3 +191,9 @@ ModelManifest.xml
 
 # ignore gtest source (if any)
 extern/gtest-1.7.0/*
+
+# unix ignores
+*.o
+*.a
+*.so
+*.d
