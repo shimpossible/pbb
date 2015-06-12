@@ -18,6 +18,7 @@
    #include <fcntl.h>
    #include <sys/ioctl.h>
    #include <poll.h>
+   #include <netdb.h>
 #endif
 namespace pbb {
 namespace net {
@@ -77,13 +78,47 @@ namespace net {
         PBB_HOST_NOT_FOUND   = WSAHOST_NOT_FOUND,
         PBB_TRY_AGAIN        = WSATRY_AGAIN,
         PBB_NO_RECOVERY      = WSANO_RECOVERY,
-        PBB_NO_DATA          = WSANO_DATA,a
+        PBB_NO_DATA          = WSANO_DATA,
 #else
-	PBB_EINTR            = EINTR,
-	PBB_EACCES           = EACCES,
+        PBB_EINTR            = EINTR,
+        PBB_EACCES           = EACCES,
         PBB_EFAULT           = EFAULT,
-	PBB_EMFILE           = EMFILE,
-
+        PBB_EMFILE           = EMFILE,
+        PBB_EAGAIN           = EAGAIN,
+        PBB_EWOULDBLOCK      = EWOULDBLOCK,
+        PBB_EINPROGRESS      = EINPROGRESS,
+        PBB_EALREADY         = EALREADY,
+        PBB_ENOTSOCK         = ENOTSOCK,
+        PBB_EDESTADDRREQ     = EDESTADDRREQ,
+        PBB_EMSGSIZE         = EMSGSIZE,
+        PBB_EPROTOTYPE       = EPROTOTYPE,
+        PBB_ENOPROTOOPT      = ENOPROTOOPT,
+        PBB_EPROTONOSUPPORT  = EPROTONOSUPPORT,
+        PBB_ESOCKTNOSUPPORT  = ESOCKTNOSUPPORT,
+        PBB_ENOTSUP          = EOPNOTSUPP,
+        PBB_EPFNOSUPPORT     = EPFNOSUPPORT,
+        PBB_EAFNOSUPPORT     = EAFNOSUPPORT,
+        PBB_EADDRINUSE       = EADDRINUSE,
+        PBB_EADDRNOTAVAIL    = EADDRNOTAVAIL,
+        PBB_ENETDOWN         = ENETDOWN,
+        PBB_ENETUNREACH      = ENETUNREACH,
+        PBB_ENETRESET        = ENETRESET,
+        PBB_ECONNABORTED     = ECONNABORTED,
+        PBB_ECONNRESET       = ECONNRESET,
+        PBB_ENOBUFS          = ENOBUFS,
+        PBB_EISCONN          = EISCONN,
+        PBB_ENOTCONN         = ENOTCONN,
+        PBB_ESHUTDOWN        = ESHUTDOWN,
+        PBB_ETIMEDOUT        = ETIMEDOUT,
+        PBB_ECONNREFUSED     = ECONNREFUSED,
+        PBB_EHOSTDOWN        = EHOSTDOWN,
+        PBB_EHOSTUNREACH     = EHOSTUNREACH,
+        PNN_ESYSNOTREADY     = EOPNOTSUPP,
+        PBB_ENOTINIT         = -80001,
+        PBB_HOST_NOT_FOUND   = HOST_NOT_FOUND,
+        PBB_TRY_AGAIN        = TRY_AGAIN,
+        PBB_NO_RECOVERY      = NO_RECOVERY,
+        PBB_NO_DATA          = NO_DATA,
 #define SOCKET_ERROR (-1)
 #endif
     };

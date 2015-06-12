@@ -16,14 +16,14 @@ SRC_DIR        := src
 INC_DIR        := include
 DEP_DIR        := deps
 LIB_DIR        := $(ROOT_DIR)/lib
-
+EXTERN_DIR     := $(ROOT_DIR)/extern
 DEP            := $(CXX) -MM -MQ
 MKDIR          := mkdir -p
 
-LIB_STATIC_DEBUG    := $(LIB_DIR)/pbb.$(LIBRARY_NAME)D.a
-LIB_SATIC_RELEASE   := $(LIB_DIR)/pbb.$(LIBRARY_NAME).a
-LIB_SHARED_DEBUG    := $(LIB_DIR)/pbb.$(LIBRARY_NAME)D.so
-LIB_SHARED_RELEASE  := $(LIB_DIR)/pbb.$(LIBRARY_NAME).so
+LIB_STATIC_DEBUG    := $(LIB_DIR)/libpbb.$(LIBRARY_NAME)D.a
+LIB_STATIC_RELEASE   := $(LIB_DIR)/libpbb.$(LIBRARY_NAME).a
+LIB_SHARED_DEBUG    := $(LIB_DIR)/libpbb.$(LIBRARY_NAME)D.so
+LIB_SHARED_RELEASE  := $(LIB_DIR)/libpbb.$(LIBRARY_NAME).so
 
 all: build_dirs $(LIB_STATIC_DEBUG) $(LIB_SHARED_DEBUG) $(LIB_STATIC_RELEASE) $(LIB_SHARED_RELEASE)
 	@echo done
@@ -37,17 +37,19 @@ $(DEP_DIR)/%.d: $(DEP_DIR) $(SRC_DIR)/%.cpp
 	@echo "Creating dependency list for " $^
 	$(DEP) $(OBJ_STATIC_DIR)/$(patsubst %.d,%.o,$(notdir $@)) $(SRC_DIR)/$(patsubst %.d,%.cpp,$(notdir $@)) $(INCLUDE) $(CXXFLAGS) >$@
 
-.SECONDARY: 
+# .SECONDARY: 
 $(OBJ_STATIC_DIR)/%.o: $(SRC_DIR)/%.cpp $(DEP_DIR)/%.d
 	@echo "Compiling " $< "(debug, static)"
 	@$(CXX) $(INCLUDE) $(CXXFLAGS) $(OPT_STATIC_CXX) -c $< -o $@
 
-
-$(OBJ_SHARED_DIR)/%.o: $(SRC_DIR)/$.cpp $(DEP_DIR)/%.d
+$(OBJ_SHARED_DIR)/%.o: $(SRC_DIR)/%.cpp $(DEP_DIR)/%.d
 	@echo "Compiling " $< "(debug, shared)"
 	@$(CXX) $(INCLUDE) $(CXXFLAGS) $(OPT_SHARED_CXX) -c $< -o $@
 
 $(LIB_STATIC_DEBUG): $(foreach o,$(objs),$(OBJ_STATIC_DIR)/$(o).o)
+	@ar -cr $@ $^
+
+$(LIB_STATIC_RELEASE): $(foreach o,$(objs),$(OBJ_STATIC_DIR)/$(o).o)
 	@ar -cr $@ $^
 
 $(LIB_SHARED_DEBUG): $(foreach o,$(objs),$(OBJ_SHARED_DIR)/$(o).o)
@@ -55,6 +57,10 @@ $(LIB_SHARED_DEBUG): $(foreach o,$(objs),$(OBJ_SHARED_DIR)/$(o).o)
 	@$(SHLIB) $(SHLIBFLAGS) -o $@ $^
 
 $(LIB_SHARED_RELEASE): $(foreach o,$(objs),$(OBJ_SHARED_DIR)/$(o).o)
+	@echo "Creating shared library " $@
 	@$(SHLIB) $(SHLIBFLAGS) -o $@ $^
 
+test: $(TEST_OBS)
+	gcc $(TEST_OBJS) -l $(EXTERN_DIR)/gtest-1.7.0/lib/libgtest.la -o $(TEST_DIR)/test
+# include depency list
 include $(addprefix $(DEP_DIR)/,$(addsuffix .d,$(objs)))
