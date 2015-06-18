@@ -5,5 +5,6 @@ objs =
 objs += Thread
 objs += Mutex
 
-include ../include.mk
+ROOT_DIR = ./..
+include ../build/library.mk
 
