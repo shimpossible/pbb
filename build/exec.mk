@@ -20,6 +20,7 @@ $(TARGET): $(foreach o,$(objs),$(OBJ_SHARED_DIR)/$(o).o)
 
 $(DEP_DIR)/%.d: $(DEP_DIR) $(SRC_DIR)/%.cpp
 	@echo "Creating dependency list for " $^
-	$(DEP) $(OBJ_STATIC_DIR)/$(patsubst %.d,%.o,$(notdir $@)) $(SRC_DIR)/$(patsubst %.d,%.cpp,$(notdir $@)) $(INCLUDE) $(CXXFLAGS) >$@
-
+	$(DEP) $(OBJ_STATIC_DIR)/$(patsubst %.d,%.o,$(notdir $@)) $(SRC_DIR)/$(patsubst %.d,%.cpp,$(notdir $@)) $(INCLUDE) $(CXXFLAGS) >$@.tmp
+	sed 's//\($*\)\.[ :]*/\1.o $(subst /,\/,$@) : /g' < $@.tmp > $@
+	rm $@.tmp
 
