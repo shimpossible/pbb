@@ -61,3 +61,7 @@ MKDIR          := mkdir -p
 
 SHLIB       := $(CXX)
 SHLIBFLAGS  := -shared
+
+LINK        := $(CXX)
+LINKFLAGS   := -L$(EXTERN_DIR)/gtest-1.7.0/lib -L$(LIB_DIR) -W1,-Bstatic -lpthread -lgtest -lpbb.Net -lpbb.Thread
+ 
