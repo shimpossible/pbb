@@ -6,3 +6,5 @@ all: $(LIB_NAMES)
 
 $(LIB_NAMES):
 	make -C $@
+
+.PHONY: $(LIB_NAMES)
