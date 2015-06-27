@@ -17,9 +17,12 @@ public:
 TEST_F(SocketTest, Echo)
 {
     EchoServer srv;
-    
-//    while (1);
+    Thread thred;
+	printf("Trying to start\r\n");
+    thred.Start(srv);   
 
+    srv.Stop();
+    thred.Join();
 }
 
 /**
@@ -48,7 +51,6 @@ TEST_F(SocketTest, AsyncConnect)
 
     // Connect to non-listening server as async
     result = client.Connect(servAddr);
-
     int ready = 0;
 
     SocketCollection rc;
@@ -60,7 +62,7 @@ TEST_F(SocketTest, AsyncConnect)
 
     // should fail
     Error serr = Socket::Select(rc, wc, ec, 10000000, ready);
-    ASSERT_EQ(1, ec.size());
+    ASSERT_EQ(1, ec.size() + wc.size());
 
     // no one listening
     result = client.GetError();

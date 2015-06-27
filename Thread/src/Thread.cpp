@@ -1,6 +1,6 @@
 #include <pbb/Thread.h>
 #include <assert.h>
-
+#include <stdio.h>
 #ifdef PBB_OS_IS_WINDOWS
   #define LEAN_AND_MEAN
   #include <Windows.h>
@@ -43,7 +43,7 @@ void SetThreadName(DWORD dwThreadID, const char* threadName)
 
 #ifdef PBB_OS_IS_WINDOWS
 	#define TLSKEY DWORD
-	int TLS_CREATE_KEY(TLSKEY x)
+	int TLS_CREATE_KEY(TLSKEY& x)
         {
            x = TlsAlloc();
            return x == TLS_OUT_OF_INDEXES;
@@ -53,9 +53,9 @@ void SetThreadName(DWORD dwThreadID, const char* threadName)
 	#define TLS_GET_KEY(x)   TlsGetValue((x))
 #else
 	#define TLSKEY pthread_key_t
-	int TLS_CREATE_KEY(TLSKEY x)
+	int TLS_CREATE_KEY(TLSKEY& x)
         {
-           return pthread_key_create(&(x), NULL);
+           return pthread_key_create(&x, NULL);
         }
 	#define TLS_RELEASE_KEY(x) pthread_key_delete( x )
 	#define TLS_SET_KEY(x,y)   pthread_setspecific((x), (y))
@@ -115,12 +115,15 @@ pbb::Thread::~Thread()
 void pbb::Thread::StartThread(uint32_t(__stdcall *start)(void*),
     uint32_t stack, int32_t priority, uint32_t affinity, const char* name)
 {
+    this->mName = name;
+    this->mPriority = priority;
     // http://www.viva64.com/en/d/0102/print/
 #ifdef PBB_OS_IS_WINDOWS
     mThread = (pbb_thread_t)_beginthreadex(NULL, stack, start, this, 0, &mThreadId);
 #else
     pthread_attr_t attr;
-    pthread_create(&mThread, &attr, (void* (*)(void*))start, this);
+    pthread_attr_init(&attr);
+    int r =pthread_create(&mThread, &attr, (void* (*)(void*))start, this);
 #endif
 }
 
@@ -157,6 +160,6 @@ void pbb::Thread::SetPriority(int32_t priority)
 void pbb::Thread::SetName(const char* name)
 {
     assert(mThreadId);
-
-    SetThreadName(mThreadId, name);
+    if(name==0) name = "";
+    SetThreadName(mThread, name);
 }
