@@ -1,6 +1,6 @@
 #include include.mk
 
-LIB_NAMES := Common Thread Messaging
+LIB_NAMES := Common Thread Net
 
 all: $(LIB_NAMES)
 

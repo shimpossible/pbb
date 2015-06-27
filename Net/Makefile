@@ -5,6 +5,6 @@ INCLUDE      := -Iinclude -I../Common/include
 objs =
 objs += Socket
 
-ROOT_DIR = ../
+ROOT_DIR = ..
 include ../build/library.mk
 
