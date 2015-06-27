@@ -10,9 +10,11 @@ public:
     ~EchoServer()
     {
         mRunning = false;
+	printf("Waiting for thread to end\r\n");
         mThread.Join();
     }
     virtual void Run();
+    void Stop(){ mRunning = 0; }
 protected:
 
     volatile bool mRunning;

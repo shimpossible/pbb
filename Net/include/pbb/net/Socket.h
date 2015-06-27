@@ -233,12 +233,14 @@ namespace net {
             return Ioctl(FIONBIO, arg);
 #else
             // TODO: unix = O_NONBLOCK
-            if(enable)
+            int flags = fcntl(mSocket, F_GETFL,0);
+            if(enable==false)
             {
+                fcntl(mSocket, F_SETFL, flags | O_NONBLOCK);
             }
             else
             {
-                fcntl(mSocket, F_SETFL, O_NONBLOCK);
+                fcntl(mSocket, F_SETFL, flags & ~O_NONBLOCK);
             }
 #endif
         }

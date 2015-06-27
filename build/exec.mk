@@ -6,7 +6,7 @@ include $(ROOT_DIR)/build/common.mk
 BUILD_DIRS = $(DEP_DIR) $(OBJ_SHARED_DIR) $(OBJ_STATIC_DIR) $(LIB_DIR)
 all: $(BUILD_DIRS) $(TARGET)
 
-$(DIRS):
+$(BUILD_DIRS):
 	@echo making $@
 	$(MKDIR) $@
 

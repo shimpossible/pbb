@@ -4,6 +4,7 @@
 #endif
 #include "gtest/gtest.h"
 
+#include "EchoServer.h"
 int main(int argc, char **argv) {
 
 #ifdef WIN32
@@ -12,4 +13,7 @@ int main(int argc, char **argv) {
 #endif
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
+
+	EchoServer s;
+	return 0;
 }

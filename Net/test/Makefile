@@ -1,4 +1,4 @@
-INCLUDE      := -I../include -I../../Thread/include -I../../Common/include
+INCLUDE      := -I../include -I../../Thread/include -I../../Common/include -I../../extern/gtest-1.7.0/include
 
 objs =
 objs += SocketTest

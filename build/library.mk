@@ -18,11 +18,11 @@ $(DEP_DIR)/%.d: $(DEP_DIR) $(SRC_DIR)/%.cpp
 # .SECONDARY: 
 $(OBJ_STATIC_DIR)/%.o: $(SRC_DIR)/%.cpp $(DEP_DIR)/%.d
 	@echo "Compiling " $< "(static)"
-	@$(CXX) $(INCLUDE) $(CXXFLAGS) $(OPT_STATIC_CXX) -c $< -o $@
+	$(CXX) $(INCLUDE) $(CXXFLAGS) $(OPT_STATIC_CXX) -c $< -o $@
 
 $(OBJ_SHARED_DIR)/%.o: $(SRC_DIR)/%.cpp $(DEP_DIR)/%.d
 	@echo "Compiling " $< "(shared)"
-	@$(CXX) $(INCLUDE) $(CXXFLAGS) $(OPT_SHARED_CXX) -c $< -o $@
+	$(CXX) $(INCLUDE) $(CXXFLAGS) $(OPT_SHARED_CXX) -c $< -o $@
 
 $(LIB_STATIC): $(foreach o,$(objs),$(OBJ_STATIC_DIR)/$(o).o)
 	@echo "Creating static library " $@

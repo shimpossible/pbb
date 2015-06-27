@@ -31,4 +31,6 @@ void EchoServer::Run()
             printf("someone connected..\r\n");
         }
     }
+
+    printf("Echo servo closing\r\n");
 }

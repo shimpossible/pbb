@@ -39,7 +39,7 @@ endif
 #
 
 # common C++ compiler options
-OPT_CXX    =
+OPT_CXX        = -g3
 # options only for a SHARED library build
 OPT_SHARED_CXX = $(OPT_CXX) -fPIC
 # options only for a STATIC library build
@@ -63,5 +63,5 @@ SHLIB       := $(CXX)
 SHLIBFLAGS  := -shared
 
 LINK        := $(CXX)
-LINKFLAGS   := -L$(EXTERN_DIR)/gtest-1.7.0/lib -L$(LIB_DIR) -W1,-Bstatic -lpthread -lgtest -lpbb.Net -lpbb.Thread
+LINKFLAGS   := -L$(EXTERN_DIR)/gtest-1.7.0/lib/.libs -L$(LIB_DIR) -lpthread -W1,-Bstatic ../../extern/gtest-1.7.0/lib/.libs/libgtest.a  $(LIB_DIR)/libpbb.NetD.a $(LIB_DIR)/libpbb.ThreadD.a
  
