@@ -41,9 +41,9 @@ void SetThreadName(DWORD dwThreadID, const char* threadName)
     #define SetThreadName pthread_setname_np
 #endif
 
-#if PBB_OS_IS_WINDOWS
-	#define TLSKEY DWRD
-	int TLS_CREATE_KEY(DWORD x)
+#ifdef PBB_OS_IS_WINDOWS
+	#define TLSKEY DWORD
+	int TLS_CREATE_KEY(TLSKEY x)
         {
            x = TlsAlloc();
            return x == TLS_OUT_OF_INDEXES;
@@ -53,7 +53,7 @@ void SetThreadName(DWORD dwThreadID, const char* threadName)
 	#define TLS_GET_KEY(x)   TlsGetValue((x))
 #else
 	#define TLSKEY pthread_key_t
-	int TLS_CREATE_KEY(pthread_key_t x)
+	int TLS_CREATE_KEY(TLSKEY x)
         {
            return pthread_key_create(&(x), NULL);
         }
@@ -102,7 +102,7 @@ pbb::Thread::Thread()
 }
 pbb::Thread::~Thread()
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     if(mThread) CloseHandle(mThread);
 #else
     if(mThread)
@@ -116,7 +116,7 @@ void pbb::Thread::StartThread(uint32_t(__stdcall *start)(void*),
     uint32_t stack, int32_t priority, uint32_t affinity, const char* name)
 {
     // http://www.viva64.com/en/d/0102/print/
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     mThread = (pbb_thread_t)_beginthreadex(NULL, stack, start, this, 0, &mThreadId);
 #else
     pthread_attr_t attr;
@@ -133,7 +133,7 @@ uint32_t pbb::Thread::Join()
 {
     assert(mThread);
  
-#if PBB_OS_IS_WINDOWS   
+#ifdef PBB_OS_IS_WINDOWS   
     WaitForSingleObject(mThread, INFINITE);
     //DWORD exitCode = 0;
     //GetExitCodeThread(mThread, &exitCode);
@@ -147,7 +147,7 @@ uint32_t pbb::Thread::Join()
 
 void pbb::Thread::SetPriority(int32_t priority)
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     SetThreadPriority(mThread, priority);
 #else
     pthread_setschedprio(mThread, priority);

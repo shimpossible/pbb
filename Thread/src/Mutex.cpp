@@ -3,7 +3,7 @@
 
 pbb::Mutex::Mutex(pbb::Mutex::Type type)
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     InitializeCriticalSection(&mMutex);
 #else
     pthread_mutexattr_t attr;
@@ -19,7 +19,7 @@ pbb::Mutex::Mutex(pbb::Mutex::Type type)
 
 pbb::Mutex::~Mutex()
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     // TODO: check we own the thread
     DeleteCriticalSection(&mMutex);
 #else
@@ -29,7 +29,7 @@ pbb::Mutex::~Mutex()
 
 void pbb::Mutex::Lock()
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     EnterCriticalSection(&mMutex);
     if (mType == pbb::Mutex::TYPE_NORMAL && mMutex.LockCount > 1)
     {
@@ -44,7 +44,7 @@ void pbb::Mutex::Lock()
 }
 void pbb::Mutex::Unlock()
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     LeaveCriticalSection(&mMutex);
 #else
     pthread_mutex_unlock(&mMutex);
@@ -52,7 +52,7 @@ void pbb::Mutex::Unlock()
 }
 bool pbb::Mutex::TryLock()
 {
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
     // returns non-zero on success
     return TryEnterCriticalSection(&mMutex)!=0;
 #else

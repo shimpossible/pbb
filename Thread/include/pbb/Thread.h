@@ -3,7 +3,9 @@
 #include <pbb/pbb.h>
 #include <pbb/delegate.h>
 
-#if PBB_OS_IS_WINDOWS
+#ifdef PBB_OS_IS_WINDOWS
+    #define _WINSOCKAPI_
+    #include <Windows.h>
 #else
     #include <pthread.h>
 #endif
@@ -22,8 +24,8 @@ namespace pbb
         virtual ~IRunnable() {}
     };
 
-#if PBB_OS_IS_WINDOWS
-    typedef void* pbb_thread_handle_t;
+#ifdef PBB_OS_IS_WINDOWS
+    typedef HANDLE pbb_thread_t;
 #else
     typedef pthread_t  pbb_thread_t;
 #endif

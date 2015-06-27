@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "pbb/config.h"     // get all defines about the platform
+#include <pbb/platform.h>
 
 // To prevent GCC from complaining about static functions, prefix with PBB_UNUSED
 #ifdef __GNUC__

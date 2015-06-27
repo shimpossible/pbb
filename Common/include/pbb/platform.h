@@ -29,7 +29,7 @@
     #define PBB_OS_IS_WINDOWS
     #define PBB_OS PBB_OS_WINDOWS_CE
 #elif defined(_WIN32) || defined(_WIN64)
-    #define PBB_OS_IS_WINDOWS
+    #define PBB_OS_IS_WINDOWS 1
     #define PBB_OS PBB_OS_WINDOWS_NT
 #elif defined(__VMS)
 #endif
