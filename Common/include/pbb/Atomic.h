@@ -1,7 +1,11 @@
 #ifndef __ATOMIC_H__
 #define __ATOMIC_H__
+#include <pbb/pbb.h>
 
-#include <intrin.h>
+#ifdef PBB_OS_IS_WINDOWS
+  #include <intrin.h>
+#else
+#endif
 
 
 template<typename T>
@@ -22,17 +26,7 @@ private:
     T mT;
 };
 
-template<>
-Atomic<int32_t>& Atomic<int32_t>::operator ++()
-{
-    _InterlockedIncrement((volatile long*)&mT);
-    return *this;
-}
-template<>
-Atomic<int32_t>& Atomic<int32_t>::operator--()
-{
-    _InterlockedDecrement((volatile long*)&mT);
-    return *this;
-}
+template<> Atomic<int32_t>& Atomic<int32_t>::operator ++();
+template<> Atomic<int32_t>& Atomic<int32_t>::operator--();
 
 #endif

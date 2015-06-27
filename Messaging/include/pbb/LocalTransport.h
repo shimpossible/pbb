@@ -42,7 +42,7 @@ namespace pbb {
         */
         Message* Clone(Message* msg);
 
-        std::map<uint32_t, std::list<Message*>> mMessagePool;
+        std::map<uint32_t, std::list<Message*> > mMessagePool;
     private:
     };
 

@@ -5,14 +5,22 @@
 
 namespace pbb
 {
+
+// TODO: make this a NOP in Doxugen
+#ifdef PBB_OS_IS_WINDOWS
+  #define CDECL __cdecl
+#else
+  #define CDECL __attribute__((cdecl))
+#endif
+
     /**
         Handler for received messages
         @param ctx   Opaque data to pass to handler
         @param link  sender of message
         @param msg   The message itself
      */
-    typedef void(__cdecl MessageHandler)(void* ctx, Link&, Message*);
-    typedef Message* (__cdecl MessageFactory)(uint32_t code);
+    typedef void(CDECL *MessageHandler)(void* ctx, Link&, Message*);
+    typedef Message* (CDECL *MessageFactory)(uint32_t code);
 
     class PBB_API MessageHandlerCollection
     {
@@ -78,7 +86,8 @@ namespace pbb
                      it != mData.end();
                      it++)
                 {
-                    it->fptr(it->ctx, link, msg);
+                    MessageHandler* f = it->fptr;
+                    (*f)(it->ctx, link, msg);
                 }
             }
         protected:

@@ -37,7 +37,7 @@ namespace pbb
     Message* LocalTransport::GetMessage(uint32_t protocol, uint32_t code)
     {
         Message* message = 0;
-        std::map<uint32_t, std::list<Message*>>::iterator it;
+        std::map<uint32_t, std::list<Message*> >::iterator it;
         it = mMessagePool.find(protocol);
 
         if (it != mMessagePool.end())
@@ -66,7 +66,7 @@ namespace pbb
     }
     void LocalTransport::ReleaseMessage(Message* msg)
     {
-        std::map<uint32_t, std::list<Message*>>::iterator it;
+        std::map<uint32_t, std::list<Message*> >::iterator it;
         it = mMessagePool.find(msg->GetProtcolCRC());
 
         // Tried to release message not part of pool
