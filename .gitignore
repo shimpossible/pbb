@@ -197,3 +197,6 @@ extern/gtest-1.7.0/*
 *.a
 *.so
 *.d
+
+# test executable
+test/test

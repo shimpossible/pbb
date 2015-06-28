@@ -63,5 +63,5 @@ SHLIB       := $(CXX)
 SHLIBFLAGS  := -shared
 
 LINK        := $(CXX)
-LINKFLAGS   := -L$(EXTERN_DIR)/gtest-1.7.0/lib/.libs -L$(LIB_DIR) -lpthread -W1,-Bstatic ../../extern/gtest-1.7.0/lib/.libs/libgtest.a  $(LIB_DIR)/libpbb.NetD.a $(LIB_DIR)/libpbb.ThreadD.a
+LINKFLAGS   := $(foreach D,$(LIB_DIR),-L$(D)) $(foreach L,$(LIBS),-l$(L)) $(STATIC_LIBS)
  

@@ -6,12 +6,9 @@ LIBS         = pthread
 #static libs to be linked in
 STATIC_LIBS  = $(EXTERN_DIR)/gtest-1.7.0/lib/.libs/libgtest.a 
 STATIC_LIBS += $(LIB_DIR)/libpbb.ThreadD.a 
-STATIC_LIBS += $(LIB_DIR)/libpbb.NetD.a
 
 objs =
-objs += SocketTest
 objs += main
-objs += EchoServer
 
 TARGET=test
 
