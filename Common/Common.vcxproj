@@ -43,6 +43,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <TargetName>pbb.$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -76,6 +77,7 @@
     <ClInclude Include="include\pbb\platform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Atomic.cpp" />
     <ClCompile Include="src\pbb.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

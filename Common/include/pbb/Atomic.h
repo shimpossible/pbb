@@ -6,17 +6,17 @@
   #include <intrin.h>
 #else
 #endif
-
+namespace pbb {
 
 template<typename T>
-class Atomic
+class PBB_API Atomic
 {
 public:
     Atomic(const T& t)
         :mT(t)
     {}
 
-    operator T() const { return mT;  }
+    operator T() const { return mT; }
 
     inline Atomic& operator++();
     inline Atomic& operator--();
@@ -29,4 +29,5 @@ private:
 template<> Atomic<int32_t>& Atomic<int32_t>::operator ++();
 template<> Atomic<int32_t>& Atomic<int32_t>::operator--();
 
-#endif
+} /* namespace pbb */
+#endif /* __ATOMIC_H__ */

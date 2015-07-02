@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}</ProjectGuid>
+    <ProjectGuid>{D2C39C55-98D3-49D6-8E71-18CC86FCA70C}</ProjectGuid>
     <RootNamespace>test</RootNamespace>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
   </PropertyGroup>
@@ -43,8 +43,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>..\include;..\..\Thread\include;..\..\Common\include;..\..\extern\gtest-1.7.0\include;$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>..\..\extern\gtest-1.7.0\lib;$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(OutDir)</LibraryPath>
-    <TargetName>Net.$(ProjectName)</TargetName>
+    <LibraryPath>..\..\Debug\;..\..\extern\gtest-1.7.0\lib;$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(OutDir)</LibraryPath>
+    <TargetName>Thread.$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -72,9 +72,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\EchoServer.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\SocketTest.cpp" />
+    <ClCompile Include="src\ThreadTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -19,8 +19,8 @@ namespace pbb
         @param link  sender of message
         @param msg   The message itself
      */
-    typedef void(CDECL *MessageHandler)(void* ctx, Link&, Message*);
-    typedef Message* (CDECL *MessageFactory)(uint32_t code);
+    typedef void(CDECL MessageHandler)(void* ctx, Link&, Message*);
+    typedef Message* (CDECL MessageFactory)(uint32_t code);
 
     class PBB_API MessageHandlerCollection
     {

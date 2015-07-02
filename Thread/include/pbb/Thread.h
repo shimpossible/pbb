@@ -50,7 +50,7 @@ namespace pbb
         void Run();
 
         template<typename RunnableT>
-        void Start(RunnableT& runnable, uint32_t stack=0, uint32_t priority=0, uint32_t affinity=-1, const char* name = NULL)
+        void Start(RunnableT& runnable, const char* name = NULL, uint32_t stack=0, uint32_t priority=0, uint32_t affinity=-1)
         {
             mDelegate = delegate::create<RunnableT>(runnable, &RunnableT::Run);
             StartThread(ThreadStart, stack, priority, affinity, name);

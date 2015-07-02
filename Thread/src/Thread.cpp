@@ -102,14 +102,16 @@ pbb::Thread::Thread()
 }
 pbb::Thread::~Thread()
 {
-#ifdef PBB_OS_IS_WINDOWS
-    if(mThread) CloseHandle(mThread);
-#else
-    if(mThread)
+    if (mThread)
     {
-         pthread_detach(mThread);
-    }
+        // Wait for thread to end
+        Join();
+#ifdef PBB_OS_IS_WINDOWS
+        CloseHandle(mThread);
+#else
+        pthread_detach(mThread);
 #endif
+    }
     mThread = 0;
 }
 void pbb::Thread::StartThread(uint32_t(__stdcall *start)(void*),
@@ -161,5 +163,9 @@ void pbb::Thread::SetName(const char* name)
 {
     assert(mThreadId);
     if(name==0) name = "";
-    SetThreadName(mThread, name);
+#ifdef PBB_OS_IS_WINDOWS
+    SetThreadName(mThreadId, name);
+#else
+    SetThreadName(mThread, name)
+#endif
 }
