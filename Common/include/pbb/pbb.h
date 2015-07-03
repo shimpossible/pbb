@@ -47,4 +47,14 @@ namespace pbb
     // no stdcall outside of windows
     #define __stdcall
 #endif
+
+    // TODO: make this a NOP in Doxygen
+#ifdef PBB_OS_IS_WINDOWS
+  #ifndef CDECL
+    #define CDECL __cdecl
+  #endif
+#else
+  #define CDECL __attribute__((cdecl))
+#endif
+
 #endif /* __PBB_H__ */

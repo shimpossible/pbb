@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace pbb;
+using namespace pbb::msg;
 
 class LocalTransportTest : public ::testing::Test {
 public:
@@ -31,7 +31,7 @@ TEST_F(LocalTransportTest, Transmit)
     // setup
     TestMessage myMsg;
     myMsg.data = 0x1234;
-    pbb::Link myLink;
+    Link myLink;
     MessageHandlerCollection handlers;
     handlers.Add(TEST_PROTOCOL::CRC, &TEST_PROTOCOL::CreateMessage, this, &MsgReceive);    
     LocalTransport transport(handlers);

@@ -4,7 +4,8 @@
 #include "testprotocol.h"
 #include "gtest/gtest.h"
 
-using namespace pbb;
+using namespace pbb::msg;
+
 class RouteConfigTest : public ::testing::Test {
 public:
 
@@ -20,7 +21,7 @@ public:
 };
 
 /**
-    By default RouteConfig to route to anyone local connection configured 
+    By default RouteConfig to route to any local connection configured 
     to receive the data
  */
 TEST_F(RouteConfigTest, LocalTransport)
@@ -30,7 +31,7 @@ TEST_F(RouteConfigTest, LocalTransport)
 
     TestMessage myMsg;
     myMsg.data = 0x1234;
-    pbb::Link myLink;
+    Link myLink;
 
     rc.Send(myLink, &myMsg);
 
@@ -47,7 +48,8 @@ TEST_F(RouteConfigTest, LocalTransport)
 }
 
 /**
-    Multiple Transports
+    Multiple Transports.  RouteConfig should route to all
+    defined transports
  */
 TEST_F(RouteConfigTest, Transport)
 {
@@ -57,13 +59,15 @@ TEST_F(RouteConfigTest, Transport)
     TestTransport tport;    
     rc.ConfigureTransport(tport);
 
+    // Route all received TEST_PROTOCOL message to MsgReceive
     rc.ConfigureInbound<TEST_PROTOCOL>(this, MsgReceive);
 
     TestMessage myMsg;
     TestMessage* other;
     myMsg.data = 0x1234;
-    pbb::Link myLink;
+    Link myLink;
 
+    // Send a message, should go through TestTransport 
     rc.Send(myLink, &myMsg);
 
     // Ensure it routed to the local MsgReceive function

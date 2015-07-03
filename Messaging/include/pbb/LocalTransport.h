@@ -7,6 +7,7 @@
 #include "MessageHandlerCollection.h"
 
 namespace pbb {
+namespace msg {
 
     /**
     Transports the message to the local endpoints
@@ -28,7 +29,7 @@ namespace pbb {
 
         virtual void ConfigureOutbound(uint32_t crc);
 
-        virtual Message* GetMessage(uint32_t protocol, uint32_t code);
+        virtual Message* CreateMessage(uint32_t protocol, uint32_t code);
         virtual void ReleaseMessage(Message* msg);
     protected:
 
@@ -46,5 +47,6 @@ namespace pbb {
     private:
     };
 
-}/* namespace pbb*/
+} /* namespace msg */
+} /* namespace pbb*/
 #endif /* __PBB_LOCAL_TRANSPORT_H__ */

@@ -5,12 +5,12 @@
 
 #include <vector>
 
-class TestMessage : public pbb::Message
+class TestMessage : public pbb::msg::Message
 {
 public:
     virtual uint32_t GetProtcolCRC() { return 1; }
     virtual uint32_t GetCode() { return 2; }
-    virtual void Copy(Message* other)
+    virtual void Copy(pbb::msg::Message* other)
     {
         if (other == 0 || this == other) return;
         // not same message?
@@ -37,7 +37,7 @@ public:
     {
     }
 
-    static pbb::Message* CreateMessage(uint32_t code)
+    static pbb::msg::Message* CreateMessage(uint32_t code)
     {
         return new TestMessage();
     }
@@ -45,15 +45,15 @@ public:
 };
 
 
-class TestTransport : public pbb::ITransport
+class TestTransport : public pbb::msg::ITransport
 {
 public:
-    std::vector<pbb::Message*> received;
+    std::vector<pbb::msg::Message*> received;
     std::vector<uint32_t> outbound;
     TestTransport()
     {
     }
-    virtual void Transmit(pbb::Link&, pbb::Message* msg)
+    virtual void Transmit(pbb::msg::Link&, pbb::msg::Message* msg)
     {
         msg->AddRef();
         received.push_back(msg);

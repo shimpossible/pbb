@@ -42,7 +42,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>include;$(SolutionDir)/Common/include;$(IncludePath)</IncludePath>
+    <IncludePath>..\Net\include\;include;$(SolutionDir)/Common/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(OutDir);$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <TargetName>pbb.$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -55,7 +55,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pbb.Common.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pbb.Net.lib;pbb.Common.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -78,6 +78,7 @@
     <ClCompile Include="src\Message.cpp" />
     <ClCompile Include="src\MessageQueue.cpp" />
     <ClCompile Include="src\RouteConfig.cpp" />
+    <ClCompile Include="src\TCPTransport.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\pbb\Endpoint.h" />
@@ -85,9 +86,11 @@
     <ClInclude Include="include\pbb\Link.h" />
     <ClInclude Include="include\pbb\LocalTransport.h" />
     <ClInclude Include="include\pbb\Message.h" />
+    <ClInclude Include="include\pbb\messagehandlercollection.h" />
     <ClInclude Include="include\pbb\MessageQueue.h" />
     <ClInclude Include="include\pbb\RefCounted.h" />
     <ClInclude Include="include\pbb\RouteConfig.h" />
+    <ClInclude Include="include\pbb\TCPTransport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

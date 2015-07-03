@@ -3,15 +3,8 @@
 #include <map>
 #include <list>
 
-namespace pbb
-{
-
-// TODO: make this a NOP in Doxugen
-#ifdef PBB_OS_IS_WINDOWS
-  #define CDECL __cdecl
-#else
-  #define CDECL __attribute__((cdecl))
-#endif
+namespace pbb{
+namespace msg{
 
     /**
         Handler for received messages
@@ -105,5 +98,6 @@ namespace pbb
     private:
     };
 
+} /* namespace msg */
 } /* namespace pbb */
 #endif

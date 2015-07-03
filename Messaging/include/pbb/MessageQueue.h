@@ -7,25 +7,29 @@
 #include <queue>
 
 namespace pbb {
-    class MessageQueue
+namespace msg {
+
+class MessageQueue
+{
+public:
+
+    bool Empty();
+
+    void Enqueue(Link& link, Message* msg);
+
+    void Dequeue(Link& link, Message*& msg);
+
+protected:
+    struct Tuple
     {
-    public:
-
-        bool Empty();
-
-        void Enqueue(Link& link, Message* msg);
-
-        void Dequeue(Link& link, Message*& msg);
-
-    protected:
-        struct Tuple
-        {
-            Link& link;
-            Message* msg;
-        };
-
-        std::queue<Tuple> mQueue;
+        Link& link;
+        Message* msg;
     };
+
+    std::queue<Tuple> mQueue;
+};
+
+} /* namespace msg */
 } /* namespace pbb */
 
 #endif /* __PBB_MESSAGE_QUEUE_H__ */

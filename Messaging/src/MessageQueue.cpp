@@ -1,23 +1,27 @@
 #include "pbb/MessageQueue.h"
 
 namespace pbb {
-    bool MessageQueue::Empty()
-    {
-        return mQueue.empty();
-    }
-    void MessageQueue::Enqueue(Link& link, Message* msg)
-    {
-        msg->AddRef();
-        Tuple t = { link, msg };
-        mQueue.push(t);
-    }
+namespace msg {
 
-    void MessageQueue::Dequeue(Link& link, Message*& msg)
-    {
-        Tuple t = mQueue.front();
-        mQueue.pop();
+bool MessageQueue::Empty()
+{
+    return mQueue.empty();
+}
+void MessageQueue::Enqueue(Link& link, Message* msg)
+{
+    msg->AddRef();
+    Tuple t = { link, msg };
+    mQueue.push(t);
+}
 
-        link = t.link;
-        msg = t.msg;
-    }
+void MessageQueue::Dequeue(Link& link, Message*& msg)
+{
+    Tuple t = mQueue.front();
+    mQueue.pop();
+
+    link = t.link;
+    msg = t.msg;
+}
+
+} /* namespace msg */
 } /* namespace pbb */

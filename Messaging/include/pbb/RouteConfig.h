@@ -10,69 +10,80 @@
 #include <list>
 
 namespace pbb {
+namespace msg {
+
+/**
+* Keeps track of where to route messages and
+    Transports to send message out on
+*/
+class PBB_API RouteConfig
+{
+public:
+
+    RouteConfig();
+    ~RouteConfig();
 
     /**
-    * Keeps track of where to route messages and
-      Transports to send message out on
-    */
-    class PBB_API RouteConfig
-    {
-    public:
-
-        RouteConfig();
-        ~RouteConfig();
-
-        /**
-         * Configure a Transport for this RouteConfig
-         * @param tport  Instance of a ITransport class
-         */
-        void ConfigureTransport(ITransport& tport);
-
-        template<typename PROTOCOL_T>
-        void ConfigureOutbound()
-        {
-            mOutgoingHandlers.push_back(PROTOCOL_T::CRC);
-            // Notify all Transports of the new protocol
-            std::list<ITransport*>::iterator it;
-            for (it = mTransport.begin();
-            it != mTransport.end();
-                it++)
-            {
-                (*it)->ConfigureOutbound(PROTOCOL_T::CRC);
-            }
-        }
-
-        template<typename PROTOCOL_T>
-        void ConfigureInbound(void* ctx, MessageHandler fptr)
-        {
-            // TODO: wrap access
-            mIncommingHandlers.Add(PROTOCOL_T::CRC, PROTOCOL_T::CreateMessage, ctx, fptr);
-        }
-
-        /**
-        Send a message to all handlers registers
-        for the protocol of the messages
-        @param src  Source of message
-        @param msg  Message to send
+        * Configure a Transport for this RouteConfig
+        * @param tport  Instance of a ITransport class
         */
-        void Send(Link& src, Message* msg);
+    void ConfigureTransport(ITransport& tport);
 
-        const MessageHandlerCollection& MessageHandlers()
+    template<typename PROTOCOL_T>
+    void ConfigureOutbound()
+    {
+        mOutgoingHandlers.push_back(PROTOCOL_T::CRC);
+        // Notify all Transports of the new protocol
+        std::list<ITransport*>::iterator it;
+        for (it = mTransport.begin();
+        it != mTransport.end();
+            it++)
         {
-            return mIncommingHandlers;
+            (*it)->ConfigureOutbound(PROTOCOL_T::CRC);
         }
-    private:
-        // Who to notify when a message is received
-        MessageHandlerCollection mIncommingHandlers;
+    }
 
-        // Messages that will be sent
-        std::list<uint32_t> mOutgoingHandlers;
-        // Transports to send messages on
-        std::list<ITransport*> mTransport;
+    template<typename PROTOCOL_T>
+    void ConfigureInbound(void* ctx, MessageHandler fptr)
+    {
+        // TODO: wrap access
+        mIncommingHandlers.Add(PROTOCOL_T::CRC, PROTOCOL_T::CreateMessage, ctx, fptr);
 
-        //! Every RouteConfig can route amoung its local members
-        LocalTransport  mLocalTransport;
-    };
+        // Notify all Transports of the new protocol
+        std::list<ITransport*>::iterator it;
+        for (it = mTransport.begin();
+        it != mTransport.end();
+            it++)
+        {
+            (*it)->ConfigureInbound(PROTOCOL_T::CRC);
+        }
+    }
 
+    /**
+    Send a message to all handlers registers
+    for the protocol of the messages
+    @param src  Source of message
+    @param msg  Message to send
+    */
+    void Send(Link& src, Message* msg);
+
+    const MessageHandlerCollection& MessageHandlers()
+    {
+        return mIncommingHandlers;
+    }
+private:
+    // Who to notify when a message is received
+    MessageHandlerCollection mIncommingHandlers;
+
+    // Messages that will be sent
+    std::list<uint32_t> mOutgoingHandlers;
+    // Transports to send messages on
+    std::list<ITransport*> mTransport;
+
+    //! Every RouteConfig can route amoung its local members
+    LocalTransport  mLocalTransport;
+};
+
+} /* namespace msg */
 } /* namespace pbb */
 #endif /* __PBB_ROUTE_CONFIG_H__ */
