@@ -35,38 +35,41 @@ TEST_F(SocketTest, AsyncConnect)
     //////////////////////////
     // setup
     SocketAddress addr(SocketAddress::INET, "127.0.0.1", 0);
-    Socket client(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
-    Socket server(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
+    Socket* client = Socket::Create(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
+    Socket* server = Socket::Create(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
 
     // setup a listening socket
-    result = server.Bind(addr, true);
+    result = server->Bind(addr, true);
     ASSERT_EQ(PBB_ESUCCESS, result);
 
     // get port server is listening on
     SocketAddress servAddr;
-    server.Address(servAddr);
+    server->Address(servAddr);
 
     // non-blocking
-    client.SetBlocking(false);
+    client->SetBlocking(false);
 
     // Connect to non-listening server as async
-    result = client.Connect(servAddr);
+    result = client->Connect(servAddr);
     int ready = 0;
 
     SocketCollection rc;
     SocketCollection wc;
     SocketCollection ec;
-    rc.push_back(&client);
-    wc.push_back(&client);
-    ec.push_back(&client);
+    rc.push_back(client);
+    wc.push_back(client);
+    ec.push_back(client);
 
     // should fail
-    Error serr = Socket::Select(rc, wc, ec, 10000000, ready);
+    Error serr = Socket::Select(&rc, &wc, &ec, 10000000, ready);
     ASSERT_EQ(1, ec.size() + wc.size());
 
     // no one listening
-    result = client.GetError();
+    result = client->GetError();
     ASSERT_EQ(PBB_ECONNREFUSED, result);
+
+    client->Close();
+    server->Close();
 }
 
 /**
@@ -79,46 +82,46 @@ TEST_F(SocketTest, SyncConnect)
     //////////////////////////
     // setup
     SocketAddress addr(SocketAddress::INET, "127.0.0.1", 0);
-    Socket client(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
-    Socket server(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
+    Socket* client = Socket::Create(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
+    Socket* server = Socket::Create(addr.AddressFamily(), Socket::TCP, IPPROTO_TCP);
 
     // setup a listening socket
-    result = server.Bind(addr, true);
+    result = server->Bind(addr, true);
     ASSERT_EQ(PBB_ESUCCESS, result);
 
-    result = server.Listen(10);
+    result = server->Listen(10);
     ASSERT_EQ(PBB_ESUCCESS, result);
 
     // get port server is listening on
     SocketAddress servAddr;
-    server.Address(servAddr);
+    server->Address(servAddr);
 
     // normal blocking (Default)
     //client.SetBlocking(true);
 
     // Connect to non-listening server as async
-    result = client.Connect(servAddr);
+    result = client->Connect(servAddr);
 
     int ready = 0;
 
     SocketCollection rc;
     SocketCollection wc;
     SocketCollection ec;
-    rc.push_back(&client);
-    wc.push_back(&client);
-    ec.push_back(&client);
+    rc.push_back(client);
+    wc.push_back(client);
+    ec.push_back(client);
 
     // should fail
-    Error serr = Socket::Select(rc, wc, ec, 10000000, ready);
+    Error serr = Socket::Select(&rc, &wc, &ec, 10000000, ready);
     ASSERT_EQ(0, ec.size());
     ASSERT_EQ(1, wc.size());
 
     // connect went well
-    result = client.GetError();
+    result = client->GetError();
     ASSERT_EQ(PBB_ESUCCESS, result);
 
-    Socket clientSock;
-    result = server.Accept(clientSock);
+    Socket* clientSock = 0;
+    result = server->Accept(clientSock);
     ASSERT_EQ(PBB_ESUCCESS, result);
 
 }

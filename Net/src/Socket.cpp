@@ -38,7 +38,7 @@ namespace net {
         return ntohs(mIPv4.sin_port);
     }
 
-    Socket::Socket(SocketAddress::Family fam, Socket::Type socketType, int protocol)
+    Socket* Socket::Create(SocketAddress::Family fam, Socket::Type socketType, int protocol)
     {
         int af;
         int type;
@@ -63,21 +63,13 @@ namespace net {
             type = SOCK_DGRAM;
             break;
         }
-        mSocket = socket(af, type, protocol);
+        return (Socket*)socket(af, type, protocol);
     }
 
-    Socket::Socket(const Socket* other)
-    {
-    }
-
-    Socket::~Socket()
-    {
-        Close();
-    }
-
-    Error Socket::Select(SocketCollection& readSocks,
-        SocketCollection& writeSocks,
-        SocketCollection& errSocks,
+    Error Socket::Select(
+        SocketCollection* readSocks,
+        SocketCollection* writeSocks,
+        SocketCollection* errSocks,
         int timeout, int& ready)
     {
         fd_set readSet;
@@ -91,30 +83,34 @@ namespace net {
         tv.tv_usec = timeout;
         uint32_t max = 0;
 
-        for (SocketCollection::const_iterator it = readSocks.begin();
-        it != readSocks.end();
-            it++
+        if(readSocks)
+        for (SocketCollection::const_iterator it = readSocks->begin();
+             it != readSocks->end();
+             it++
             )
         {
-            FD_SET((*it)->mSocket, &readSet);
-            max = (max > (*it)->mSocket) ? max : (*it)->mSocket;
+            FD_SET(*(*it), &readSet);
+            max = (max > *(*it)) ? max : *(*it);
         }
 
-        for (SocketCollection::const_iterator it = writeSocks.begin();
-        it != writeSocks.end();
-            it++
+        if(writeSocks)
+        for (SocketCollection::const_iterator it = writeSocks->begin();
+             it != writeSocks->end();
+             it++
             )
         {
-            FD_SET((*it)->mSocket, &writeSet);
-            max = (max > (*it)->mSocket) ? max : (*it)->mSocket;
+            FD_SET(*(*it), &writeSet);
+            max = (max > *(*it)) ? max : *(*it);
         }
-        for (SocketCollection::const_iterator it = errSocks.begin();
-        it != errSocks.end();
-            it++
+
+        if(errSocks)
+        for (SocketCollection::const_iterator it = errSocks->begin();
+             it != errSocks->end();
+             it++
             )
         {
-            FD_SET((*it)->mSocket, &errorSet);
-            max = (max > (*it)->mSocket) ? max : (*it)->mSocket;
+            FD_SET( *(*it), &errorSet);
+            max = (max > *(*it)) ? max : *(*it);
         }
 
         int r = ::select(max + 1, &readSet, &writeSet, &errorSet, &tv);
@@ -128,16 +124,16 @@ namespace net {
         SocketCollection writeOut;
         SocketCollection errorOut;
 #define SELECT_SOCKETS( INLIST, SET, OUTLIST) \
-            for (SocketCollection::const_iterator it = INLIST.begin(); it != INLIST.end(); it++ ) \
-                if (FD_ISSET((*it)->mSocket, &SET)) OUTLIST.push_back( (*it) );
+            for (SocketCollection::const_iterator it = INLIST->begin(); it != INLIST->end(); it++ ) \
+                if (FD_ISSET(*(*it), &SET)) OUTLIST.push_back( (*it) );
 
-        SELECT_SOCKETS(readSocks, readSet, readOut);
+        SELECT_SOCKETS(readSocks,  readSet,  readOut);
         SELECT_SOCKETS(writeSocks, writeSet, writeOut);
-        SELECT_SOCKETS(errSocks, errorSet, errorOut);
+        SELECT_SOCKETS(errSocks,   errorSet, errorOut);
 
-        std::swap(readSocks, readOut);
-        std::swap(writeSocks, writeOut);
-        std::swap(errSocks, errorOut);
+        readSocks->swap(readOut);
+        writeSocks->swap(writeOut);
+        errSocks->swap(errorOut);
 
         return PBB_ESUCCESS;
     }
@@ -162,7 +158,7 @@ namespace net {
 
     Error Socket::LastError()
     {
-#ifdef PBB_IS_WINDOWS_OS
+#ifdef PBB_OS_IS_WINDOWS
         return (Error)WSAGetLastError();
 #else
 	return (Error)errno;
@@ -172,7 +168,7 @@ namespace net {
     Error Socket::PeerAddress(SocketAddress& address)
     {        
         socklen_t len = sizeof(address.mIPv6);
-        if (::getpeername(mSocket, (sockaddr*)&address.mIPv4, &len) == SOCKET_ERROR)
+        if (::getpeername(*this, (sockaddr*)&address.mIPv4, &len) == SOCKET_ERROR)
         {
             return LastError();
         }
@@ -182,7 +178,7 @@ namespace net {
     Error Socket::Ioctl(uint32_t cmd, uint32_t& arg)
     {
 #ifdef PBB_OS_IS_WINDOWS
-        if (ioctlsocket(mSocket, cmd, (u_long*)&arg) == SOCKET_ERROR)
+        if (ioctlsocket(*this, cmd, (u_long*)&arg) == SOCKET_ERROR)
             return LastError();
 #else
         if (ioctl(mSocket, cmd, &arg) != 0)
@@ -194,7 +190,7 @@ namespace net {
     Error Socket::Address(SocketAddress& address)
     {
         socklen_t len = sizeof(address.mIPv6);
-        if (::getsockname(mSocket, (sockaddr*)&address.mIPv4, &len) == SOCKET_ERROR)
+        if (::getsockname(*this, (sockaddr*)&address.mIPv4, &len) == SOCKET_ERROR)
         {
             return LastError();
         }
@@ -203,7 +199,7 @@ namespace net {
 
     Error Socket::Receive(void* dest, int len, int& received, int flags )
     {
-        int r = ::recv(mSocket, (char*)dest, len, flags);
+        int r = ::recv(*this, (char*)dest, len, flags);
         
         // recv returns SOCKET_ERROR if there is an error
         switch(r)
@@ -220,7 +216,7 @@ namespace net {
     Error Socket::Close()
     {
 #ifdef PBB_OS_IS_WINDOWS
-        if (::closesocket(mSocket) == SOCKET_ERROR)
+        if (::closesocket(*this) == SOCKET_ERROR)
 #else
         if (::close(mSocket) != 0)
 #endif
@@ -232,7 +228,7 @@ namespace net {
 
     Error Socket::Bind(const SocketAddress& address, bool reuse)
     {
-        if (::bind(mSocket, address, address.Length()) == SOCKET_ERROR)
+        if (::bind(*this, address, address.Length()) == SOCKET_ERROR)
         {
             return LastError();
         }
@@ -241,7 +237,7 @@ namespace net {
 
     Error Socket::Listen(int backlong)
     {
-        if (::listen(mSocket, backlong) == SOCKET_ERROR)
+        if (::listen(*this, backlong) == SOCKET_ERROR)
         {
             return LastError();
         }
@@ -250,17 +246,18 @@ namespace net {
 
     Error Socket::Connect(const SocketAddress& address)
     {
-        if (::connect(mSocket, address, address.Length()) == SOCKET_ERROR)
+        if (::connect(*this, address, address.Length()) == SOCKET_ERROR)
         {
             return LastError();
         }
         return PBB_ESUCCESS;
     }
 
-    Error Socket::Accept(Socket& other)
+    Error Socket::Accept(Socket*& other, SocketAddress* addr)
     {
-        other.mSocket = ::accept(mSocket, 0, 0);
-        if (other.mSocket == INVALID_SOCKET)
+        socklen_t len = SocketAddress::MaxLength;
+        other = (Socket*)::accept(*this, (sockaddr*)&addr->mIPv4, &len);
+        if (*other == INVALID_SOCKET)
         {
             return LastError();
         }
@@ -271,7 +268,7 @@ namespace net {
     {
         Error err = PBB_ESUCCESS;
         socklen_t len = sizeof(err);
-        int r = getsockopt(mSocket, SOL_SOCKET, SO_ERROR, (char*)&err, &len);
+        int r = getsockopt(*this, SOL_SOCKET, SO_ERROR, (char*)&err, &len);
         if (r == INVALID_SOCKET)
         {
             err = LastError();

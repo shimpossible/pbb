@@ -144,11 +144,11 @@ namespace net {
         ~SocketAddress() {};
 
         // Implicit cast
-        virtual operator sockaddr* () const
+        operator sockaddr* () const
         {
             return (sockaddr*)&mIPv4;
         }
-        virtual Family AddressFamily() const
+        Family AddressFamily() const
         {
             return (Family)mIPv4.sin_family;
         }
@@ -186,18 +186,16 @@ namespace net {
             RAW,
         };
 
-        Socket()
-            :mSocket(INVALID_SOCKET)
+        static Socket* InvalidSocket()
         {
-        }
+            return (Socket*)INVALID_SOCKET;
 
-        Socket(SocketAddress::Family fam, Type type, int protocol=0);
-        Socket(const Socket* other);
-        ~Socket();
+        }
+        static Socket* Create(SocketAddress::Family fam, Type type, int protocol=0);
 
         operator pbb_socket_t()
         {
-            return mSocket;
+            return (pbb_socket_t)this;
         }
 
         /**
@@ -243,15 +241,16 @@ namespace net {
         Error Listen(int backlog);
 
         Error Connect(const SocketAddress& address);
-        Error Accept(Socket& other);
+        Error Accept(Socket*& other,SocketAddress* addr=0);
 
         Error GetError();
 
         static Error LastError();
 
-        static Error Select(SocketCollection& readSocks,
-            SocketCollection& writeSocks,
-            SocketCollection& errSocks,
+        static Error Select(
+            SocketCollection* readSocks,
+            SocketCollection* writeSocks,
+            SocketCollection* errSocks,
             int timeout, int& ready);
         
         /**
@@ -260,8 +259,9 @@ namespace net {
         static Error Poll(pdd_pollfd_t* fdarray, uint32_t fds, int timeout, int& ready);
 
     protected:
-
-        pbb_socket_t mSocket;
+        Socket();
+        Socket(const Socket& other);
+        ~Socket();
     private:
     };
 

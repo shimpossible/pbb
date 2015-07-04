@@ -18,9 +18,15 @@
     <ClInclude Include="include\pbb\net\Socket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\pbb\net\SocketManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Socket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

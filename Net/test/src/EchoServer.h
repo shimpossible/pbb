@@ -19,6 +19,6 @@ protected:
 
     volatile bool mRunning;
     pbb::Thread mThread;
-    pbb::net::Socket  mSocket;
+    pbb::net::Socket*  mSocket;
     pbb::net::SocketAddress mAddr;
 };

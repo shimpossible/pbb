@@ -12,8 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\pbb\net\Socket.h" />
+    <ClInclude Include="include\pbb\net\SocketManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SocketManager.cpp" />
     <ClCompile Include="src\Socket.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

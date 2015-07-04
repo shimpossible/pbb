@@ -24,7 +24,7 @@ public:
     TCPServer();
 
     bool Start(uint16_t port);
-    bool ConnectTo(const char* address);
+    bool ConnectTo(const char* address, uint16_t port);
 
     /**
     Sends message to specific object on remote server
@@ -45,11 +45,19 @@ protected:
         There are a few layers of IDs.
         Server   -> Remote Server, contains 1 or more Endpoints
         Endpoint -> A single object on a remote server
+        This keeps track of which connection an object is found on
         */
     typedef std::unordered_map<ObjectId, TCPConnection*> ConnectionMap;
+    /**
+     Map a socket to a connection object
+     */
     typedef std::unordered_map<net::pbb_socket_t, TCPConnection*> ClientSocketMap;
+    /**
+     Map a server socket to an object
+     */
     typedef std::map<net::pbb_socket_t, TCPServer*>               ServerSocketMap;
 
+    net::Socket*               m_Socket;
     ConnectionMap              m_Connections;
     static ClientSocketMap     s_Clients;
     static ServerSocketMap     s_KnownConnections;
@@ -61,7 +69,7 @@ protected:
     static void net_accepted(net::pbb_socket_t id, net::pbb_socket_t other, net::SocketAddress& address);
     static void net_received(net::pbb_socket_t id, void* data, size_t len);
 
-    static TCPServer* Find(net::pbb_socket_t id);
+    static TCPServer*     Find(net::pbb_socket_t id);
     static TCPConnection* FindClient(net::pbb_socket_t id);
     /**
     A new client that hasn't negotiated protocols yet..

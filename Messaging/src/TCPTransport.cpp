@@ -7,6 +7,25 @@ namespace msg {
 TCPServer::ClientSocketMap     TCPServer::s_Clients;
 TCPServer::ServerSocketMap     TCPServer::s_KnownConnections;
 
+TCPServer::TCPServer()
+{
+    m_Socket = pbb::net::Socket::Create(net::SocketAddress::INET, net::Socket::TCP);
+}
+bool TCPServer::Start(uint16_t port)
+{
+    if (m_Socket->Listen(10) != net::PBB_ESUCCESS) return false;
+
+    // Keep track of connection
+    s_KnownConnections[*m_Socket] = this;
+    return true;
+}
+
+bool TCPServer::ConnectTo(const char* address, uint16_t port)
+{
+    // TODO: connect to remove server given an address and port
+    return false;
+}
+
 TCPTransport::TCPTransport(uint16_t port)
 {
     // TODO: open socket listening for new connections

@@ -72,6 +72,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SocketManagerTest.cpp" />
     <ClCompile Include="src\EchoServer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SocketTest.cpp" />
