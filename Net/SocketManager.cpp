@@ -2,6 +2,26 @@
 
 using namespace pbb::net;
 
+SocketManager::SocketManager()
+    : mKnownSockets(nullptr)
+{
+
+}
+SocketManager::~SocketManager()
+{
+    //TODO: close all sockets
+
+    SocketControlBlock* curr = mKnownSockets;
+    while (curr != nullptr)
+    {
+        SocketControlBlock* last = curr;
+        curr->socket->Close();
+        curr = curr->next;
+
+        delete last;
+    }
+}
+
 Error SocketManager::Close(Socket* sock)
 {
     SocketControlBlock* curr = mKnownSockets;
@@ -20,13 +40,60 @@ Error SocketManager::Close(Socket* sock)
                 mKnownSockets = curr->next;
             }
 
-            return curr->socket->Close();
+            delete curr;
+            return sock->Close();
 
         }
+        last = curr;
         curr = curr->next;
     }
 
     return PBB_ESUCCESS;
+}
+
+Socket* SocketManager::ConnectTo(const char* address, uint16_t port, SocketManager::SocketCallback& ops)
+{
+    // TODO: check if its ipv4, ipv6, or dns entry..
+    SocketAddress addr(SocketAddress::INET, address, port);
+    return ConnectTo(addr, ops);
+}
+
+Socket* SocketManager::ConnectTo(SocketAddress& address, SocketManager::SocketCallback& ops)
+{
+    Error e;
+    // TODO: allow user to specify TCP or UDP
+    Socket* clientSock = Socket::Create(address.AddressFamily(), Socket::TCP);
+    if (clientSock != Socket::InvalidSocket)
+    {
+        State state = PENDING_CONNECTION;
+        e = clientSock->SetBlocking(false); if (e != PBB_ESUCCESS) goto error;
+        e = clientSock->Connect(address);   
+        switch (e)
+        {
+        case PBB_ESUCCESS: // connected..
+            state = CONNECTED;
+        case PBB_EAGAIN: // Connection in progress
+            break;
+        default:
+            goto error;
+        }
+
+        AddSocket(clientSock, state, ops);
+        if (ops.state_changed)
+        {
+            ops.state_changed(clientSock, state);
+        }
+    }
+
+    goto fin;
+error:
+    if (clientSock != Socket::InvalidSocket)
+    {
+        clientSock->Close();
+        clientSock = (Socket*)Socket::InvalidSocket;
+    }
+fin:
+    return clientSock;
 }
 
 Socket* SocketManager::OpenAndListen(uint16_t port, SocketManager::SocketCallback& ops)
@@ -38,6 +105,7 @@ Socket* SocketManager::OpenAndListen(uint16_t port, SocketManager::SocketCallbac
     sock->Listen(10);
     sock->SetBlocking(false);
 
+    AddSocket(sock, LISTENING, ops);
     if (ops.state_changed)
     {
         ops.state_changed(sock, LISTENING);
@@ -79,7 +147,7 @@ void SocketManager::Update()
             break;
         }
 
-        curr->next;
+        curr = curr->next;
     }
 }
 
@@ -97,9 +165,10 @@ bool SocketManager::UpdatePending(SocketControlBlock* scb)
         int ready = 0;
         if (scb->socket->Select(0, &wr, 0, 0, ready) == PBB_ESUCCESS)
         {
-            if (ready == 1)
+            if (ready == 1) // connection complete
             {
-
+                scb->state = CONNECTED;
+                scb->ops.state_changed(scb->socket, scb->state);
             }
         }
         return false;

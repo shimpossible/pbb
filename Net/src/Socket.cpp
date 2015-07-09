@@ -38,6 +38,8 @@ namespace net {
         return ntohs(mIPv4.sin_port);
     }
 
+    const Socket* Socket::InvalidSocket = (Socket*)INVALID_SOCKET;
+
     Socket* Socket::Create(SocketAddress::Family fam, Socket::Type socketType, int protocol)
     {
         int af;
@@ -124,16 +126,14 @@ namespace net {
         SocketCollection writeOut;
         SocketCollection errorOut;
 #define SELECT_SOCKETS( INLIST, SET, OUTLIST) \
+         if(INLIST) { \
             for (SocketCollection::const_iterator it = INLIST->begin(); it != INLIST->end(); it++ ) \
-                if (FD_ISSET(*(*it), &SET)) OUTLIST.push_back( (*it) );
+                if (FD_ISSET(*(*it), &SET)) OUTLIST.push_back( (*it) ); \
+          INLIST->swap(OUTLIST); }
 
         SELECT_SOCKETS(readSocks,  readSet,  readOut);
         SELECT_SOCKETS(writeSocks, writeSet, writeOut);
         SELECT_SOCKETS(errSocks,   errorSet, errorOut);
-
-        readSocks->swap(readOut);
-        writeSocks->swap(writeOut);
-        errSocks->swap(errorOut);
 
         return PBB_ESUCCESS;
     }

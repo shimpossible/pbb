@@ -12,8 +12,7 @@ int main(int argc, char **argv) {
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int ret = RUN_ALL_TESTS();
 
-	EchoServer s;
-	return 0;
+    return ret;
 }

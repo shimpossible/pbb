@@ -23,13 +23,18 @@ public:
         void (CDECL *state_changed)(pbb::net::Socket* socket, State state);
         void (CDECL *accepted)(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address);
         void (CDECL *received)(pbb::net::Socket* socket, void* data, size_t len);
-
     };
+
+    SocketManager();
+    ~SocketManager();
 
     Error Close(Socket* sock);
 
     void Update();
     pbb::net::Socket* OpenAndListen(uint16_t port, SocketCallback& ops);
+    pbb::net::Socket* ConnectTo(const char* address, uint16_t port, SocketManager::SocketCallback& ops);
+    pbb::net::Socket* ConnectTo(const char* address, SocketManager::SocketCallback& ops);
+    pbb::net::Socket* ConnectTo(SocketAddress& address, SocketManager::SocketCallback& ops);
 protected:
     struct SocketControlBlock
     {

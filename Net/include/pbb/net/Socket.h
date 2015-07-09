@@ -186,11 +186,8 @@ namespace net {
             RAW,
         };
 
-        static Socket* InvalidSocket()
-        {
-            return (Socket*)INVALID_SOCKET;
+        const static Socket* InvalidSocket;
 
-        }
         static Socket* Create(SocketAddress::Family fam, Type type, int protocol=0);
 
         operator pbb_socket_t()
