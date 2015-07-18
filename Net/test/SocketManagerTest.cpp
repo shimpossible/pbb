@@ -31,47 +31,47 @@ struct SocketManagerOps {
     };
 };
 
-std::list<SocketManagerOps> opsData;
-
-static void test_state_changed(pbb::net::Socket* socket, pbb::net::SocketManager::State state)
+class TestCallbacks : public SocketManager::ISocketCallback
 {
-    SocketManagerOps ops;
-    ops.type = 0;
-    ops.state_changed.socket = socket;
-    ops.state_changed.state = state;
-    
-    opsData.push_back(ops);
-}
-static void test_accepted(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address)
-{
-    SocketManagerOps ops;
-    ops.type = 1;
-    ops.accepted.socket  = socket;
-    ops.accepted.remote  = remote;
-    ops.accepted.address = address;
+public:
+    std::list<SocketManagerOps> opsData;
+    void state_changed(pbb::net::Socket* socket, pbb::net::SocketManager::State state)
+    {
+        SocketManagerOps ops;
+        ops.type = 0;
+        ops.state_changed.socket = socket;
+        ops.state_changed.state = state;
 
-    opsData.push_back(ops);
-}
-static void test_received(pbb::net::Socket* socket, void* data, size_t len)
-{
-    SocketManagerOps ops;
-    ops.type = 2;
-    //ops.received.socket = socket;
-    // TOOD: copy the data
-    //ops.received.data = data;
-    //ops.received.len = len;
+        opsData.push_back(ops);
+    }
+    void accepted(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address)
+    {
+        SocketManagerOps ops;
+        ops.type = 1;
+        ops.accepted.socket = socket;
+        ops.accepted.remote = remote;
+        ops.accepted.address = address;
 
-    opsData.push_back(ops);
-}
+        opsData.push_back(ops);
+    }
+    void received(pbb::net::Socket* socket, void* data, size_t len)
+    {
+        SocketManagerOps ops;
+        ops.type = 2;
+        //ops.received.socket = socket;
+        // TOOD: copy the data
+        //ops.received.data = data;
+        //ops.received.len = len;
+
+        opsData.push_back(ops);
+    }
+};
 
 TEST_F(SocketManagerTest, OpenAndListen)
 {
-    Error e;
-    SocketManager::SocketCallback ops;
-    ops.accepted      = test_accepted;
-    ops.received      = test_received;
-    ops.state_changed = test_state_changed;
+    Error e;   
     SocketManager mgr;
+    TestCallbacks ops;
 
     // Creates a new socket on random port
     Socket* serverSock = mgr.OpenAndListen(0, ops);
@@ -79,12 +79,12 @@ TEST_F(SocketManagerTest, OpenAndListen)
     ASSERT_NE((Socket*)0, serverSock);
     ASSERT_NE(Socket::InvalidSocket, serverSock);
 
-    ASSERT_EQ(1, opsData.size());
+    ASSERT_EQ(1, ops.opsData.size());
     // check callback was called
-    ASSERT_EQ(0, opsData.front().type);
-    ASSERT_EQ(serverSock, opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::LISTENING, opsData.front().state_changed.state);
-    opsData.pop_front();
+    ASSERT_EQ(0, ops.opsData.front().type);
+    ASSERT_EQ(serverSock, ops.opsData.front().state_changed.socket);
+    ASSERT_EQ(SocketManager::LISTENING, ops.opsData.front().state_changed.state);
+    ops.opsData.pop_front();
 
     // verify it has a port
     SocketAddress addr;
@@ -118,23 +118,21 @@ TEST_F(SocketManagerTest, OpenAndListen)
 TEST_F(SocketManagerTest, ConnectTo)
 {
     Error e;
-    SocketManager::SocketCallback ops;
-    ops.accepted      = test_accepted;
-    ops.received      = test_received;
-    ops.state_changed = test_state_changed;
     SocketManager mgr;
+    TestCallbacks opsListen;
+    TestCallbacks opsConnect;
 
     // Creates a new socket on random port
-    Socket* serverSock = mgr.OpenAndListen(0, ops);
+    Socket* serverSock = mgr.OpenAndListen(0, opsListen);
 
     ASSERT_NE((Socket*)0, serverSock);
     ASSERT_NE(Socket::InvalidSocket, serverSock);
 
     // check callback was called
-    ASSERT_EQ(1, opsData.size());
-    ASSERT_EQ(serverSock, opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::LISTENING, opsData.front().state_changed.state);
-    opsData.pop_front();
+    ASSERT_EQ(1, opsListen.opsData.size());
+    ASSERT_EQ(serverSock, opsListen.opsData.front().state_changed.socket);
+    ASSERT_EQ(SocketManager::LISTENING, opsListen.opsData.front().state_changed.state);
+    opsListen.opsData.pop_front();
 
     // verify it has a port
     SocketAddress addr;
@@ -142,45 +140,29 @@ TEST_F(SocketManagerTest, ConnectTo)
     ASSERT_EQ(PBB_ESUCCESS, e);
     ASSERT_NE(0, addr.Port()); // must have a non-zero port
 
-    Socket* client = mgr.ConnectTo("127.0.0.1", addr.Port(), ops);
+    Socket* client = mgr.ConnectTo("127.0.0.1", addr.Port(), opsConnect);
     ASSERT_NE((Socket*)0, serverSock);
 
     // check callback was called
-    ASSERT_EQ(1, opsData.size());
-    ASSERT_EQ(0, opsData.front().type);
-    ASSERT_EQ(client, opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::PENDING_CONNECTION, opsData.front().state_changed.state);
-    opsData.pop_front();
+    ASSERT_EQ(1, opsConnect.opsData.size());
+    ASSERT_EQ(0, opsConnect.opsData.front().type);
+    ASSERT_EQ(client, opsConnect.opsData.front().state_changed.socket);
+    ASSERT_EQ(SocketManager::PENDING_CONNECTION, opsConnect.opsData.front().state_changed.state);
+    opsConnect.opsData.pop_front();
 
     // do an update
     mgr.Update();
 
     // check callback was called, one for ACCEPT and one for CONNECTED
-    ASSERT_EQ(2, opsData.size());
+    ASSERT_EQ(1, opsConnect.opsData.size());
+    ASSERT_EQ(1, opsListen.opsData.size());
 
-    // can be 2 differnt orders
-    if(0 == opsData.front().type)
-    {
-        ASSERT_EQ(client, opsData.front().state_changed.socket);
-        ASSERT_EQ(SocketManager::CONNECTED, opsData.front().state_changed.state);
-        opsData.pop_front();
+    ASSERT_EQ(client, opsConnect.opsData.front().state_changed.socket);
+    ASSERT_EQ(SocketManager::CONNECTED, opsConnect.opsData.front().state_changed.state);
+    opsConnect.opsData.pop_front();
 
-        ASSERT_EQ(1, opsData.front().type);
-        ASSERT_EQ(serverSock, opsData.front().accepted.socket);
-        ASSERT_NE(Socket::InvalidSocket, opsData.front().accepted.remote);
-        opsData.pop_front();
-    }
-    else
-    {
-        ASSERT_EQ(serverSock, opsData.front().accepted.socket);
-        ASSERT_NE(Socket::InvalidSocket, opsData.front().accepted.remote);
-        opsData.pop_front();
-
-        ASSERT_EQ(0, opsData.front().type);
-        ASSERT_EQ(client, opsData.front().state_changed.socket);
-        ASSERT_EQ(SocketManager::CONNECTED, opsData.front().state_changed.state);
-        opsData.pop_front();
-
-    }
-    
+    ASSERT_EQ(1, opsListen.opsData.front().type);
+    ASSERT_EQ(serverSock, opsListen.opsData.front().accepted.socket);
+    ASSERT_NE(Socket::InvalidSocket, opsListen.opsData.front().accepted.remote);
+    opsListen.opsData.pop_front();
 }

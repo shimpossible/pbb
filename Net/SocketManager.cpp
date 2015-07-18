@@ -51,14 +51,14 @@ Error SocketManager::Close(Socket* sock)
     return PBB_ESUCCESS;
 }
 
-Socket* SocketManager::ConnectTo(const char* address, uint16_t port, SocketManager::SocketCallback& ops)
+Socket* SocketManager::ConnectTo(const char* address, uint16_t port, SocketManager::ISocketCallback& ops)
 {
     // TODO: check if its ipv4, ipv6, or dns entry..
     SocketAddress addr(SocketAddress::INET, address, port);
     return ConnectTo(addr, ops);
 }
 
-Socket* SocketManager::ConnectTo(SocketAddress& address, SocketManager::SocketCallback& ops)
+Socket* SocketManager::ConnectTo(SocketAddress& address, SocketManager::ISocketCallback& ops)
 {
     Error e;
     // TODO: allow user to specify TCP or UDP
@@ -79,10 +79,7 @@ Socket* SocketManager::ConnectTo(SocketAddress& address, SocketManager::SocketCa
         }
 
         AddSocket(clientSock, state, ops);
-        if (ops.state_changed)
-        {
-            ops.state_changed(clientSock, state);
-        }
+        ops.state_changed(clientSock, state);
     }
 
     goto fin;
@@ -96,7 +93,7 @@ fin:
     return clientSock;
 }
 
-Socket* SocketManager::OpenAndListen(uint16_t port, SocketManager::SocketCallback& ops)
+Socket* SocketManager::OpenAndListen(uint16_t port, SocketManager::ISocketCallback& ops)
 {
     Socket* sock = Socket::Create(SocketAddress::INET, Socket::TCP);
 
@@ -106,20 +103,16 @@ Socket* SocketManager::OpenAndListen(uint16_t port, SocketManager::SocketCallbac
     sock->SetBlocking(false);
 
     AddSocket(sock, LISTENING, ops);
-    if (ops.state_changed)
-    {
-        ops.state_changed(sock, LISTENING);
-    }
+    ops.state_changed(sock, LISTENING);
 
     return sock;
 }
 
-void SocketManager::AddSocket(Socket* socket, SocketManager::State state, SocketManager::SocketCallback& callbacks)
+void SocketManager::AddSocket(Socket* socket, SocketManager::State state, SocketManager::ISocketCallback& callbacks)
 {
-    SocketControlBlock* scb = new SocketControlBlock();
-    scb->ops      = callbacks;
+    SocketControlBlock* scb = new SocketControlBlock(state,callbacks);
+    //scb->ops      = callbacks;
     scb->socket   = socket;
-    scb->state    = state;
 
     // TODO: compare and swap
     scb->next = mKnownSockets;
@@ -186,10 +179,7 @@ bool SocketManager::UpdateListening(SocketControlBlock* scb)
         // got a listening socket, go for it
         other->SetBlocking(false);
         AddSocket(other, CONNECTED, scb->ops);
-        if (scb->ops.accepted)
-        {
-            scb->ops.accepted(scb->socket, other, addr);
-        }
+        scb->ops.accepted(scb->socket, other, addr);
     }
 
     return false;

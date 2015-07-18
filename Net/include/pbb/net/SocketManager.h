@@ -18,11 +18,12 @@ public:
         DISCONNECTED,
     };
 
-    struct SocketCallback
+    class ISocketCallback
     {
-        void (CDECL *state_changed)(pbb::net::Socket* socket, State state);
-        void (CDECL *accepted)(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address);
-        void (CDECL *received)(pbb::net::Socket* socket, void* data, size_t len);
+    public:
+        virtual void state_changed(pbb::net::Socket* socket, State state) = 0;
+        virtual void accepted(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address) = 0;
+        virtual void received(pbb::net::Socket* socket, void* data, size_t len) = 0;
     };
 
     SocketManager();
@@ -31,23 +32,28 @@ public:
     Error Close(Socket* sock);
 
     void Update();
-    pbb::net::Socket* OpenAndListen(uint16_t port, SocketCallback& ops);
-    pbb::net::Socket* ConnectTo(const char* address, uint16_t port, SocketManager::SocketCallback& ops);
-    pbb::net::Socket* ConnectTo(const char* address, SocketManager::SocketCallback& ops);
-    pbb::net::Socket* ConnectTo(SocketAddress& address, SocketManager::SocketCallback& ops);
+    pbb::net::Socket* OpenAndListen(uint16_t port, ISocketCallback& ops);
+    pbb::net::Socket* ConnectTo(const char* address, uint16_t port, ISocketCallback& ops);
+    pbb::net::Socket* ConnectTo(const char* address, ISocketCallback& ops);
+    pbb::net::Socket* ConnectTo(SocketAddress& address, ISocketCallback& ops);
 protected:
     struct SocketControlBlock
     {
         pbb::net::Socket*      socket;
         State                  state;
-        SocketCallback         ops;
+        ISocketCallback&       ops;
         SocketControlBlock*    next;
-        SocketControlBlock()
+        SocketControlBlock(State st, ISocketCallback& opts)
+            : socket(0)
+            , state( st)
+            , ops(opts) 
+            , next( 0 )
+
         {
         }
     };
 
-    void AddSocket(pbb::net::Socket* socket, State state, SocketCallback& callbacks);
+    void AddSocket(pbb::net::Socket* socket, State state, ISocketCallback& callbacks);
     bool UpdateListening(SocketControlBlock* scb);
     bool UpdateDnsLookup(SocketControlBlock* scb);
     bool UpdatePending(SocketControlBlock* scb);
