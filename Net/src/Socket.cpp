@@ -197,6 +197,22 @@ namespace net {
         return PBB_ESUCCESS;
     }
 
+    Error Socket::Send(const void* src, int len, int& sent, int flags)
+    {
+        int r = ::send(*this, (char*)src, len, flags);
+
+        // send returns SOCKET_ERROR if there is an error
+        switch (r)
+        {
+        case SOCKET_ERROR:
+            sent = 0;
+            return LastError();
+        default:
+            sent = r;
+        }
+        return PBB_ESUCCESS;
+    }
+
     Error Socket::Receive(void* dest, int len, int& received, int flags )
     {
         int r = ::recv(*this, (char*)dest, len, flags);

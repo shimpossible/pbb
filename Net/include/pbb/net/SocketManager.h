@@ -57,8 +57,10 @@ protected:
     bool UpdateListening(SocketControlBlock* scb);
     bool UpdateDnsLookup(SocketControlBlock* scb);
     bool UpdatePending(SocketControlBlock* scb);
-
+    bool UpdateConnected(SocketControlBlock* scb);
     SocketControlBlock*   mKnownSockets;
+
+    char mRecvBuffer[2048];
 private:
 };
 

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{7E68EF14-77F2-451D-9A98-7654309C5FA4}"
 EndProject
@@ -10,12 +10,18 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Messaging", "Messaging\Messaging.vcxproj", "{19E9263C-6BFF-4C77-A976-4DCA3853EB46}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "Messaging\test\test.vcxproj", "{10DE67BE-2588-431B-93C6-834299E49FD0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{19E9263C-6BFF-4C77-A976-4DCA3853EB46} = {19E9263C-6BFF-4C77-A976-4DCA3853EB46}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net", "Net", "{6AB1C1E4-2930-4748-87DF-3A673C1D3A5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Net", "Net\Net.vcxproj", "{7D6FFBB1-C20E-4643-A09B-CD786A229D3C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "Net\test\test.vcxproj", "{7C4B0A43-4D70-40EA-8BBC-DC9C9501B4DA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7D6FFBB1-C20E-4643-A09B-CD786A229D3C} = {7D6FFBB1-C20E-4643-A09B-CD786A229D3C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Thread", "Thread", "{7148C5FA-F5B2-4EE7-BB96-5783D6C4DC69}"
 EndProject

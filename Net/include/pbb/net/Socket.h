@@ -141,7 +141,7 @@ namespace net {
         SocketAddress(sockaddr* addr, int len);
 
         SocketAddress(Family fam, const char* host, uint16_t port);
-        ~SocketAddress() {};
+        //~SocketAddress() {};
 
         // Implicit cast
         operator sockaddr* () const
@@ -230,7 +230,7 @@ namespace net {
         Error PeerAddress(SocketAddress& address);
 
         Error Receive(void* dest, int len, int& received, int flags=0);
-        Error Send(const void* src, int length, int flags);
+        Error Send(const void* src, int length, int& sent, int flags=0);
 
         Error Close();
         

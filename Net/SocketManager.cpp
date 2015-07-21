@@ -136,11 +136,38 @@ void SocketManager::Update()
         case PENDING_CONNECTION:
             UpdatePending(curr);
             break;
-        case CONNECTED:          
+        case CONNECTED: 
+            UpdateConnected(curr);
             break;
         }
 
         curr = curr->next;
+    }
+}
+
+bool SocketManager::UpdateConnected(SocketControlBlock* scb)
+{
+    int recv_length = sizeof(mRecvBuffer);
+    int bytesReceived;
+    Error e = scb->socket->Receive(mRecvBuffer, recv_length, bytesReceived);
+
+    // No data yet
+    if (e == PBB_EWOULDBLOCK || e == PBB_EAGAIN)
+    {
+        return false;
+    }
+    else if (e == PBB_ESUCCESS)
+    {
+        // read all available data, and it was 0. socket is closed
+        if(bytesReceived <= 0) return true;
+
+        scb->ops.received(scb->socket, mRecvBuffer, bytesReceived);
+        return false;
+    }
+    else
+    {
+        // other error
+        return true;
     }
 }
 
