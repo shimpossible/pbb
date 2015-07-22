@@ -33,42 +33,62 @@ struct SocketManagerOps {
 	//~SocketManagerOps() {}
 	SocketManagerOps(const SocketManagerOps& other)
 	{
-		// copy
-		memcpy(this, &other, sizeof(*this));
+		switch (other.type)
+		{
+		case 0:
+		case 1:
+			// copy
+			memcpy(this, &other, sizeof(*this));
+			break;
+		case 2:
+			this->type = other.type;
+			this->received.data = malloc(other.received.len);
+			this->received.len = other.received.len;
+			memcpy(this->received.data, other.received.data, other.received.len);
+			break;
+		}		
 	};
+	~SocketManagerOps()
+	{
+		if (type == 2)
+		{
+			free(received.data);
+		}
+	}
+
 };
 
 class TestCallbacks : public SocketManager::ISocketCallback
 {
 public:
-    std::list<SocketManagerOps> opsData;
+    std::list<SocketManagerOps*> opsData;
     void state_changed(pbb::net::Socket* socket, pbb::net::SocketManager::State state)
     {
-        SocketManagerOps ops;
-        ops.type = 0;
-        ops.state_changed.socket = socket;
-        ops.state_changed.state = state;
+		SocketManagerOps* ops = new SocketManagerOps();
+        ops->type = 0;
+        ops->state_changed.socket = socket;
+        ops->state_changed.state = state;
 
         opsData.push_back(ops);
     }
     void accepted(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address)
     {
-        SocketManagerOps ops;
-        ops.type = 1;
-        ops.accepted.socket = socket;
-        ops.accepted.remote = remote;
-        ops.accepted.address = address;
+		SocketManagerOps* ops = new SocketManagerOps();
+        ops->type = 1;
+        ops->accepted.socket = socket;
+        ops->accepted.remote = remote;
+        ops->accepted.address = address;
 
         opsData.push_back(ops);
     }
     void received(pbb::net::Socket* socket, void* data, size_t len)
     {
-        SocketManagerOps ops;
-        ops.type = 2;
-        ops.received.socket = socket;
-        ops.received.data = malloc(len);
-        memcpy(ops.received.data, data, len);
-        ops.received.len = len;
+		SocketManagerOps* ops = new SocketManagerOps();
+        ops->type = 2;
+        ops->received.socket = socket;
+        ops->received.data = malloc(len);
+        memcpy(ops->received.data, data, len);
+        ops->received.len = len;
 
         opsData.push_back(ops);
     }
@@ -88,10 +108,12 @@ TEST_F(SocketManagerTest, OpenAndListen)
 
     ASSERT_EQ(1, ops.opsData.size());
     // check callback was called
-    ASSERT_EQ(0, ops.opsData.front().type);
-    ASSERT_EQ(serverSock, ops.opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::LISTENING, ops.opsData.front().state_changed.state);
+	SocketManagerOps* front = ops.opsData.front();
+    ASSERT_EQ(0, front->type);
+    ASSERT_EQ(serverSock, front->state_changed.socket);
+    ASSERT_EQ(SocketManager::LISTENING, front->state_changed.state);
     ops.opsData.pop_front();
+	free(front);
 
     // verify it has a port
     SocketAddress addr;
@@ -140,9 +162,11 @@ TEST_F(SocketManagerTest, ConnectTo)
 
     // check callback was called
     ASSERT_EQ(1, opsListen.opsData.size());
-    ASSERT_EQ(serverSock, opsListen.opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::LISTENING, opsListen.opsData.front().state_changed.state);
+	SocketManagerOps* front = opsListen.opsData.front();
+    ASSERT_EQ(serverSock, front->state_changed.socket);
+    ASSERT_EQ(SocketManager::LISTENING, front->state_changed.state);
     opsListen.opsData.pop_front();
+	delete front;
 
     // verify it has a port
     SocketAddress addr;
@@ -155,10 +179,12 @@ TEST_F(SocketManagerTest, ConnectTo)
 
     // check callback was called
     ASSERT_EQ(1, opsConnect.opsData.size());
-    ASSERT_EQ(0, opsConnect.opsData.front().type);
-    ASSERT_EQ(client, opsConnect.opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::PENDING_CONNECTION, opsConnect.opsData.front().state_changed.state);
+	front = opsConnect.opsData.front();
+    ASSERT_EQ(0, front->type);
+    ASSERT_EQ(client, front->state_changed.socket);
+    ASSERT_EQ(SocketManager::PENDING_CONNECTION, front->state_changed.state);
     opsConnect.opsData.pop_front();
+	delete front;
 
     // do an update
     mgr.Update();
@@ -166,15 +192,19 @@ TEST_F(SocketManagerTest, ConnectTo)
     // check callback was called, one for ACCEPT and one for CONNECTED
     ASSERT_EQ(1, opsConnect.opsData.size());
     ASSERT_EQ(1, opsListen.opsData.size());
-
-    ASSERT_EQ(client, opsConnect.opsData.front().state_changed.socket);
-    ASSERT_EQ(SocketManager::CONNECTED, opsConnect.opsData.front().state_changed.state);
+	
+	front = opsConnect.opsData.front();
+    ASSERT_EQ(client, front->state_changed.socket);
+    ASSERT_EQ(SocketManager::CONNECTED, front->state_changed.state);
     opsConnect.opsData.pop_front();
+	delete front;
 
-    ASSERT_EQ(1, opsListen.opsData.front().type);
-    ASSERT_EQ(serverSock, opsListen.opsData.front().accepted.socket);
-    ASSERT_NE(Socket::InvalidSocket, opsListen.opsData.front().accepted.remote);
+	front = opsListen.opsData.front();
+    ASSERT_EQ(1, front->type);
+    ASSERT_EQ(serverSock, front->accepted.socket);
+    ASSERT_NE(Socket::InvalidSocket, front->accepted.remote);
     opsListen.opsData.pop_front();
+	delete front;
 }
 
 TEST_F(SocketManagerTest, OnReceive)
@@ -212,15 +242,28 @@ TEST_F(SocketManagerTest, OnReceive)
     mgr.Update();
 
     ASSERT_EQ(1, ops.opsData.size());
-    ASSERT_EQ(1, ops.opsData.front().type); // connected
+	SocketManagerOps* front = ops.opsData.front();
+	ASSERT_EQ(1, front->type); // accepted
+	Socket* clientSocket = front->accepted.remote;
     ops.opsData.pop_front();
+	delete front;
 
     // send data
     int sent;
-    e = other->Send("ABCD", 4,sent);
+    e = other->Send("ABCD", 5,sent);
     ASSERT_EQ(PBB_ESUCCESS, e); // was able to send
 
     mgr.Update();
+
+
+	ASSERT_EQ(1, ops.opsData.size());
+	front = ops.opsData.front();
+	ASSERT_EQ(2, front->type); // received
+	ASSERT_EQ(5, front->received.len);
+	ASSERT_STREQ("ABCD", (char*)front->received.data);
+	ASSERT_EQ(clientSocket, front->received.socket);
+	ops.opsData.pop_front();
+	delete front;
 
     e = mgr.Close(serverSock); ASSERT_EQ(PBB_ESUCCESS, e);
 }
