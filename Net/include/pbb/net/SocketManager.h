@@ -6,7 +6,7 @@
 namespace pbb {
 namespace net {
 
-class PBB_API SocketManager
+class PBB_NET_API SocketManager
 {
 public:
     enum State

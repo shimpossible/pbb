@@ -1,6 +1,6 @@
 #ifndef __PBB_NET_SOCKET_H__
 #define __PBB_NET_SOCKET_H__
-#include "pbb/pbb.h"
+#include "pbb/net/Net.h"
 #include <vector>
 #include <string.h> // memcpy
 
@@ -123,7 +123,7 @@ namespace net {
 #endif
     };
 
-    class PBB_API SocketAddress
+    class PBB_NET_API SocketAddress
     {
         friend class Socket;
     public:
@@ -174,7 +174,7 @@ namespace net {
     /*
       Network socket
      */
-    class PBB_API Socket
+    class PBB_NET_API Socket
     {
     public:
         enum Type

@@ -255,7 +255,7 @@ TEST_F(SocketManagerTest, OnReceive)
 
     mgr.Update();
 
-
+	// Receved was called
 	ASSERT_EQ(1, ops.opsData.size());
 	front = ops.opsData.front();
 	ASSERT_EQ(2, front->type); // received

@@ -3,6 +3,7 @@
 
 //#include "RouteConfig.h"
 #include <pbb/net/Socket.h>
+#include <pbb/net/SocketManager.h>
 
 #include "Link.h"
 #include "ITransport.h"
@@ -15,9 +16,31 @@
 namespace pbb {
 namespace msg {
 
+class TCPServer;
 class TCPConnection;
 
-class TCPServer
+class TCPConnection
+{
+public:
+	TCPConnection(pbb::net::Socket* socket, TCPServer& server)
+	{
+	}
+	~TCPConnection()
+	{
+
+	}
+
+	/**
+	  Call when new data arives for client
+	  @param src  Pointer to buffer of new data
+	  @param len  Number of bytes in buffer
+	 */
+	void Receive(const void* src, size_t len)
+	{
+	}
+};
+
+class TCPServer 
 {
     //friend JellyConnection;
 public:
@@ -52,29 +75,33 @@ protected:
      Map a socket to a connection object
      */
     typedef std::unordered_map<net::pbb_socket_t, TCPConnection*> ClientSocketMap;
-    /**
-     Map a server socket to an object
-     */
-    typedef std::map<net::pbb_socket_t, TCPServer*>               ServerSocketMap;
 
+
+	class Callbacks : public net::SocketManager::ISocketCallback
+	{
+	public:
+		Callbacks(TCPServer& parent)
+		: m_Transport( parent)
+		{
+			
+		}
+		virtual void state_changed(pbb::net::Socket* socket, net::SocketManager::State state);
+		virtual void accepted(pbb::net::Socket* socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address);
+		virtual void received(pbb::net::Socket* socket, void* data, size_t len);
+
+		TCPServer& m_Transport;
+	};
+
+	Callbacks                  m_SocketCallback;
+	net::SocketManager         m_SocketMgr;
     net::Socket*               m_Socket;
-    ConnectionMap              m_Connections;
-    static ClientSocketMap     s_Clients;
-    static ServerSocketMap     s_KnownConnections;
+    ClientSocketMap            m_KnownConnections;
 
-    //static net::ops s_NetOps;
-    //static net::ops s_ClientNetOps;
-
-    //static void net_state_changed(net::pbb_socket_t id, net::State state);
-    static void net_accepted(net::pbb_socket_t id, net::pbb_socket_t other, net::SocketAddress& address);
-    static void net_received(net::pbb_socket_t id, void* data, size_t len);
-
-    static TCPServer*     Find(net::pbb_socket_t id);
-    static TCPConnection* FindClient(net::pbb_socket_t id);
+    TCPConnection* FindClient(net::pbb_socket_t id);
     /**
     A new client that hasn't negotiated protocols yet..
     */
-    static void AddPending(net::pbb_socket_t id, TCPConnection* client);
+    void AddPending(net::pbb_socket_t id, TCPConnection* client);
 };
 
 /**
