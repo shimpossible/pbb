@@ -1,4 +1,4 @@
-#include "pbb/MessageQueue.h"
+#include "pbb/msg/MessageQueue.h"
 
 namespace pbb {
 namespace msg {

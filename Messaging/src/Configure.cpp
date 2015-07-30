@@ -1,5 +1,5 @@
-#include "pbb/RouteConfig.h"
-#include "pbb/LocalTransport.h"
+#include "pbb/msg/RouteConfig.h"
+#include "pbb/msg/LocalTransport.h"
 
 
 void Configure()

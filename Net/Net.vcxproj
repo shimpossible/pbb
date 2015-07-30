@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SocketManager.cpp" />
+    <ClCompile Include="src\Net.cpp" />
     <ClCompile Include="src\Socket.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

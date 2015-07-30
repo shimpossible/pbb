@@ -1,4 +1,4 @@
-#include "pbb/Message.h"
+#include "pbb/msg/Message.h"
 
 pbb::msg::Message::Message()
     : mRefCount(0)

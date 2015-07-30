@@ -35,34 +35,40 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\pbb\Endpoint.h">
+    <ClInclude Include="include\pbb\msg\Endpoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\ITransport.h">
+    <ClInclude Include="include\pbb\msg\ITransport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\Link.h">
+    <ClInclude Include="include\pbb\msg\Link.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\LocalTransport.h">
+    <ClInclude Include="include\pbb\msg\LocalTransport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\Message.h">
+    <ClInclude Include="include\pbb\msg\Message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\MessageQueue.h">
+    <ClInclude Include="include\pbb\msg\messagehandlercollection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\RefCounted.h">
+    <ClInclude Include="include\pbb\msg\MessageQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\RouteConfig.h">
+    <ClInclude Include="include\pbb\msg\RefCounted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\TCPTransport.h">
+    <ClInclude Include="include\pbb\msg\RouteConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\pbb\messagehandlercollection.h">
+    <ClInclude Include="include\pbb\msg\TCPTransport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pbb\msg\ProtocolInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pbb\msg\BinaryDecoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

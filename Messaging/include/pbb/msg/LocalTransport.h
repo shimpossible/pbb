@@ -27,8 +27,6 @@ namespace msg {
         */
         virtual void Transmit(Link& link, Message* msg);
 
-        virtual void ConfigureOutbound(uint32_t crc);
-
         virtual Message* CreateMessage(uint32_t protocol, uint32_t code);
         virtual void ReleaseMessage(Message* msg);
     protected:

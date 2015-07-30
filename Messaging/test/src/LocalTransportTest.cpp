@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "pbb/RouteConfig.h"
+#include "pbb/msg/RouteConfig.h"
 #include <vector>
 
 #include "TestProtocol.h"

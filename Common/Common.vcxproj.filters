@@ -27,6 +27,9 @@
     <ClInclude Include="include\pbb\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\pbb\DataChain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pbb.cpp">

@@ -1,5 +1,5 @@
-#include "pbb/LocalTransport.h"
-#include "pbb/RouteConfig.h"
+#include "pbb/msg/LocalTransport.h"
+#include "pbb/msg/RouteConfig.h"
 
 namespace pbb {
 namespace msg {
@@ -15,11 +15,6 @@ void LocalTransport::Transmit(Link& link, Message* msg)
     Message* clone = Clone(msg);
     mHandlers.Dispatch(link, clone);
     clone->Release();
-}
-
-void LocalTransport::ConfigureOutbound(uint32_t crc)
-{
-    // Since this is local, we dont have to do anything
 }
 
 /**

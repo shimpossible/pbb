@@ -1,7 +1,7 @@
 #ifndef __TEST_PROTOCOL_H__
 #define __TEST_PROTOCOL_H__
-#include <pbb/Message.h>
-#include <pbb/ITransport.h>
+#include <pbb/msg/Message.h>
+#include <pbb/msg/ITransport.h>
 
 #include <vector>
 
@@ -10,6 +10,14 @@ class TestMessage : public pbb::msg::Message
 public:
     virtual uint32_t GetProtcolCRC() { return 1; }
     virtual uint32_t GetCode() { return 2; }
+
+	virtual bool Get(pbb::DataChain& data, uint32_t protocol)
+	{
+		// decoded correctly
+		data.Shift(&this->data, 4);
+		return true;
+	}
+
     virtual void Copy(pbb::msg::Message* other)
     {
         if (other == 0 || this == other) return;
@@ -32,6 +40,7 @@ class TEST_PROTOCOL
 {
 public:
     static const uint32_t CRC = 0x00000001;
+	static const char* NAME;
 
     TEST_PROTOCOL()        
     {
@@ -43,7 +52,6 @@ public:
     }
 
 };
-
 
 class TestTransport : public pbb::msg::ITransport
 {

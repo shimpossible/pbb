@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include "pbb/RouteConfig.h"
+#include "pbb/msg/RouteConfig.h"
 #include <vector>
 #include "testprotocol.h"
 #include "gtest/gtest.h"
+
+const char* TEST_PROTOCOL::NAME = "TEST_PROTOCOL";
 
 using namespace pbb::msg;
 

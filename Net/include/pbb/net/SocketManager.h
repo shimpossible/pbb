@@ -36,6 +36,7 @@ public:
     pbb::net::Socket* ConnectTo(const char* address, uint16_t port, ISocketCallback& ops);
     pbb::net::Socket* ConnectTo(const char* address, ISocketCallback& ops);
     pbb::net::Socket* ConnectTo(SocketAddress& address, ISocketCallback& ops);
+
 protected:
     struct SocketControlBlock
     {

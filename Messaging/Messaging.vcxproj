@@ -83,16 +83,18 @@
     <ClCompile Include="src\TCPTransport.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\pbb\Endpoint.h" />
-    <ClInclude Include="include\pbb\ITransport.h" />
-    <ClInclude Include="include\pbb\Link.h" />
-    <ClInclude Include="include\pbb\LocalTransport.h" />
-    <ClInclude Include="include\pbb\Message.h" />
-    <ClInclude Include="include\pbb\messagehandlercollection.h" />
-    <ClInclude Include="include\pbb\MessageQueue.h" />
-    <ClInclude Include="include\pbb\RefCounted.h" />
-    <ClInclude Include="include\pbb\RouteConfig.h" />
-    <ClInclude Include="include\pbb\TCPTransport.h" />
+    <ClInclude Include="include\pbb\msg\BinaryDecoder.h" />
+    <ClInclude Include="include\pbb\msg\Endpoint.h" />
+    <ClInclude Include="include\pbb\msg\ITransport.h" />
+    <ClInclude Include="include\pbb\msg\Link.h" />
+    <ClInclude Include="include\pbb\msg\LocalTransport.h" />
+    <ClInclude Include="include\pbb\msg\Message.h" />
+    <ClInclude Include="include\pbb\msg\messagehandlercollection.h" />
+    <ClInclude Include="include\pbb\msg\MessageQueue.h" />
+    <ClInclude Include="include\pbb\msg\ProtocolInfo.h" />
+    <ClInclude Include="include\pbb\msg\RefCounted.h" />
+    <ClInclude Include="include\pbb\msg\RouteConfig.h" />
+    <ClInclude Include="include\pbb\msg\TCPTransport.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

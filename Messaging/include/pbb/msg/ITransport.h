@@ -2,6 +2,8 @@
 #define __PBB_ITRANSPORT_H__
 #include <pbb/pbb.h>
 
+#include "ProtocolInfo.h"
+
 namespace pbb {
 namespace msg {
 
@@ -21,9 +23,9 @@ public:
         Notified of Protocols that will be sent on this transport
         RouteConfig will call this whenever RouteConfig::ConfigureOutbound is called
         */
-    virtual void ConfigureOutbound(uint32_t crc) {}
+    virtual void ConfigureOutbound(ProtocolInfo& info) {}
 
-    virtual void ConfigureInbound(uint32_t crc) {}
+    virtual void ConfigureInbound(ProtocolInfo& info) {}
 
 protected:
     virtual ~ITransport() {}

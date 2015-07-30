@@ -4,6 +4,8 @@
 #include <pbb/Atomic.h>
 #include <assert.h>
 
+#include <pbb/DataChain.h>
+
 namespace pbb {
 namespace msg {
 
@@ -23,6 +25,8 @@ public:
     virtual ~Message();
     virtual uint32_t GetProtcolCRC() = 0;
     virtual uint32_t GetCode() = 0;
+
+	virtual bool Get(DataChain& data, uint32_t protocolType) = 0;
 
     //! Copy other to this
     virtual void Copy(Message* other) = 0;

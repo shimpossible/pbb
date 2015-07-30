@@ -28,7 +28,10 @@ namespace msg{
         void Add(uint32_t crc, MessageFactory* factory, void* ctx, MessageHandler* fptr)
         {
             mFactory[crc] = factory;
-            mHandlers[crc].Add(ctx, fptr);
+			if (fptr != nullptr)
+			{
+				mHandlers[crc].Add(ctx, fptr);
+			}
         }
 
         /**
@@ -80,7 +83,7 @@ namespace msg{
                      it++)
                 {
                     MessageHandler* f = it->fptr;
-                    (*f)(it->ctx, link, msg);
+					if(f) (*f)(it->ctx, link, msg);
                 }
             }
         protected:

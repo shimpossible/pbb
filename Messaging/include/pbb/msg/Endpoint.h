@@ -79,7 +79,8 @@ public:
     template<typename PROTCOL_T>
     void ConfigureInbound(DispatchFptr fptr)
     {
-        mDispatch[PROTCOL_T::CRC] = fptr;
+		ProtocolInfo info(PROTCOL_T::NAME, PROTCOL_T::CRC)
+        mDispatch[info] = fptr;
         mConfig.ConfigureInbound<PROTCOL_T>(this, Dispatch);
     }
 
@@ -125,8 +126,8 @@ protected:
     Link      mLink;  //!< Local Link
 
     RouteConfig& mConfig;
-    std::map<uint32_t, MessageQueue*> mQueue;
-    std::map<uint32_t, DispatchFptr> mDispatch;
+    std::map<ProtocolInfo, MessageQueue*> mQueue;
+    std::map<ProtocolInfo, DispatchFptr> mDispatch;
 };
 
 } /* namespace msg */

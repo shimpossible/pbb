@@ -97,7 +97,8 @@ Socket* SocketManager::OpenAndListen(uint16_t port, SocketManager::ISocketCallba
 {
     Socket* sock = Socket::Create(SocketAddress::INET, Socket::TCP);
 
-    SocketAddress addrAny;
+	SocketAddress addrAny(SocketAddress::INET, "0.0.0.0", port);
+	
     sock->Bind(addrAny, true);
     sock->Listen(10);
     sock->SetBlocking(false);

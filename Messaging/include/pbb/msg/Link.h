@@ -10,11 +10,18 @@ namespace msg {
     class Link
     {
     public:
-        uint32_t type;
+        //uint32_t type;
         bool     local;
     };
 
-    typedef unsigned long long ObjectId;
+	/**
+	  128 Bit unique ID
+	 */
+	typedef struct
+	{
+		uint64_t  first;
+		uint64_t  second;
+	}ObjectId;
 
 } // namespace msg
 } // namespace pbb

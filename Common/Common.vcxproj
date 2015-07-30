@@ -72,6 +72,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\pbb\config.h" />
+    <ClInclude Include="include\pbb\DataChain.h" />
     <ClInclude Include="include\pbb\delegate.h" />
     <ClInclude Include="include\pbb\pbb.h" />
     <ClInclude Include="include\pbb\platform.h" />

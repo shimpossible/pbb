@@ -5,6 +5,7 @@
 #include "Message.h"
 #include "ITransport.h"
 #include "LocalTransport.h"
+#include "ProtocolInfo.h"
 
 #include "MessageHandlerCollection.h"
 #include <list>
@@ -13,9 +14,9 @@ namespace pbb {
 namespace msg {
 
 /**
-* Keeps track of where to route messages and
+  Keeps track of where to route messages and
     Transports to send message out on
-*/
+ */
 class PBB_API RouteConfig
 {
 public:
@@ -49,13 +50,14 @@ public:
         // TODO: wrap access
         mIncommingHandlers.Add(PROTOCOL_T::CRC, PROTOCOL_T::CreateMessage, ctx, fptr);
 
+		ProtocolInfo info(PROTOCOL_T::NAME, PROTOCOL_T::CRC);
         // Notify all Transports of the new protocol
         std::list<ITransport*>::iterator it;
         for (it = mTransport.begin();
         it != mTransport.end();
             it++)
         {
-            (*it)->ConfigureInbound(PROTOCOL_T::CRC);
+            (*it)->ConfigureInbound(info);
         }
     }
 
@@ -86,4 +88,17 @@ private:
 
 } /* namespace msg */
 } /* namespace pbb */
+
+
+namespace std
+{
+	template<>
+	struct hash<pbb::msg::ProtocolInfo>
+	{
+		std::size_t operator()(pbb::msg::ProtocolInfo const& p) const
+		{
+			return p.Hash();
+		}
+	};
+}
 #endif /* __PBB_ROUTE_CONFIG_H__ */

@@ -1,4 +1,4 @@
-#include "pbb/RouteConfig.h"
+#include "pbb/msg/RouteConfig.h"
 
 namespace pbb {
 namespace msg {
