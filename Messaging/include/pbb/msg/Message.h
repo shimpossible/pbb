@@ -9,6 +9,9 @@
 namespace pbb {
 namespace msg {
 
+/* Message IDs are 2 bytes */
+typedef uint16_t MessageID;
+
 class Message;
 
 class PBB_API IMessagePool
@@ -24,9 +27,10 @@ public:
     Message();
     virtual ~Message();
     virtual uint32_t GetProtcolCRC() = 0;
-    virtual uint32_t GetCode() = 0;
+    virtual MessageID GetCode() = 0;
 
 	virtual bool Get(DataChain& data, uint32_t protocolType) = 0;
+	virtual bool Put(DataChain& data, uint32_t protocolType) = 0;
 
     //! Copy other to this
     virtual void Copy(Message* other) = 0;

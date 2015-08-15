@@ -20,6 +20,14 @@ namespace pbb
 			mStart = &mBuffer[before];
 			mLength = 0;
 			mCapacity = capacity - before;
+			mBefore = before;
+		}
+
+		void Reset()
+		{
+			mCapacity = (mStart + mCapacity) - mBuffer - mBefore;
+			mStart = &mBuffer[mBefore];
+			mLength = 0;			
 		}
 
 		uint32_t AddTail(const void* buff, uint32_t len)
@@ -42,7 +50,14 @@ namespace pbb
 			memcpy(mStart-len, buff, len);
 			mStart -= len;
 			mLength += len;
+			mCapacity += len;
 			return len;
+		}
+
+		template<typename T>
+		uint32_t AddHead(T t)
+		{
+			return AddHead(&t, sizeof(T));
 		}
 
 		/**
@@ -90,7 +105,14 @@ namespace pbb
 				memmove(mStart, &mStart[len], mLength);
 			}
 		}
+		/**
+		  Number of bytes in buffer
+		 */
 		uint32_t Size() { return mLength; }
+
+		/**
+		  Total number of bytes buffer can hold
+		 */
 		uint32_t Capacity() { return mCapacity; }
 	protected:
 
@@ -101,6 +123,8 @@ namespace pbb
 		uint8_t* mStart;
 		uint32_t mCapacity;  // Total suze of mBuffer in bytes
 		uint32_t mLength;   // Total number of bytes
+
+		uint32_t mBefore;   // used in Reset
 	private:
 	};
 }

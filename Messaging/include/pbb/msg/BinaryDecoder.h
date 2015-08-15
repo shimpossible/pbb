@@ -6,69 +6,43 @@
 namespace pbb {
 namespace msg {
 
-class BinaryDecoder
+PBB_API uint32_t Decode7Bit(uint8_t* val);
+
+/**
+Decode 7bit encoded integer
+@param buff Buffer of data
+@param len  Number of bytes of data
+@param val  Decoded integer
+@returns pointer to input buffer, after decoded bytes.  If nothing decoded, returns original buffer
+*/
+PBB_API uint8_t* Decode7Bit(uint8_t* buff, uint32_t len, uint32_t& val);
+
+class PBB_API BinaryDecoder
 {
 public:
+	const static uint32_t ID = 0xCCCCCCCC;
+
 	BinaryDecoder(DataChain& data)
 		: m_Data(data)
 	{
 
 	}
-	void Get(const char* name, uint8_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, uint16_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, uint32_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, uint64_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
 
-	void Get(const char* name, int8_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, int16_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, int32_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, int64_t& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-
-	void Get(const char* name, float& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-	void Get(const char* name, double& value)
-	{
-		m_Data.Shift(&value, sizeof(value));
-	}
-
+	void Get(const char* name, const char*& value);
 	/**
-	  Generic method to decode a custom type
+	  Allow specialization based on type
 	 */
 	template<typename T>
-	virtual void Get(const char*name, T& value)
+	void Get(const char* name, T& value)
 	{
-		value.Get(this);
+		m_Data.Shift(&value, sizeof(value));
 	}
+
 protected:
 
 	DataChain& m_Data;
 };
+
 
 }
 }

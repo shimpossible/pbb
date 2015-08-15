@@ -1,11 +1,11 @@
 #ifndef __PBB_TCP_TRANSPORT_H__
 #define __PBB_TCP_TRANSPORT_H__
 
-//#include "RouteConfig.h"
 #include <pbb/net/Socket.h>
 #include <pbb/net/SocketManager.h>
 #include <pbb/DataChain.h>
 
+#include "RouteConfig.h"
 #include "Link.h"
 #include "ITransport.h"
 #include "Message.h"
@@ -13,6 +13,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include "TCPTransportProtocol.h"
 
 namespace pbb {
 namespace msg {
@@ -20,11 +21,6 @@ namespace msg {
 class TCPServer;
 class TCPTransport;
 
-/**
-7 bit integer encoding, LSByte first
-*/
-uint32_t PBB_API Encode7Bit(uint32_t val, int& bytes);
-uint32_t PBB_API Decode7Bit(uint8_t* val);
 
 /**
   Bytes needed to encode number
@@ -36,10 +32,12 @@ public:
 
 	enum MsgType
 	{
+		MSG_SYSTEM,
 		MSG_TYPE_NORMAL,
 		MSG_TYPE_OBJECT,
 		MSG_TYPE_PING,
 	};
+
 	struct MessageHeader
 	{
 		uint8_t  ChannelId;
@@ -47,6 +45,10 @@ public:
 		uint16_t MessageId;
 	};
 
+
+	/**
+	    
+	 */
 	class PBB_API Connection
 	{
 	public:
@@ -56,18 +58,26 @@ public:
 
 		enum State
 		{
-			INIT_ID,
-			INIT_PROTOCOL_NAME,
-			INIT_PROTOCOL_CRC,
-			INIT_RECONCILE,
-			CONNECTED
+			STATE_HELLO,
+			STATE_CONNECTED,
 		};
 
-		Connection(pbb::net::Socket* socket, TCPTransport& transport)
-			: mReceiveBuffer(2048, 0)
+		Connection(pbb::net::Socket* socket, TCPTransport& transport, TCPServer& server, bool isServer=false)
+			: mIsServer(isServer)
+			, mSocket(socket)
+			, mReceiveBuffer(2048, 0)
+			, mTransmitBuffer(2048, 4) /* 4 bytes for prefixed length */
 			, mTransport(transport)
-			, mState( INIT_ID )
+			, mState(STATE_HELLO)
+			, mServer(server)
+
 		{
+			printf("new connection %p\r\n", this);
+			mProtocolEncoding[0] = BinaryDecoder::ID;
+
+			mReceiveState = -1;
+			mReceiveMessageState = -1;
+			nameLength = 0;
 		}
 
 		~Connection()
@@ -80,6 +90,8 @@ public:
 			return mState;
 		}
 
+		void SendHello();
+
 		/**
 		Call when new data arives for client
 		@param src  Pointer to buffer of new data
@@ -87,44 +99,58 @@ public:
 		*/
 		void Receive(const void* src, size_t len);
 
+		void ReceiveHello();
+
+		void Send(pbb::msg::Message& msg);
+
+		/**
+		 Send data
+		*/
+		void Send(const void* src, size_t len);
+
 		bool ProcessReceiveMessage();
 
 		/**
 		  Given a list of remote protocols, go through them a decide which ones to keep
 		 */
 		bool ProcessReconcile();
-		bool ProcessInitId()
-		{
-			bool loop = false;
-			if(mReceiveBuffer.Size() >= 16)
-			{
-				mReceiveBuffer.Shift(&mId, 16);
-				mState = INIT_PROTOCOL_NAME;
-				loop = true;
-			}
-			return loop;
-		}
+		bool ProcessResolveEncoders();
 
-		bool ProcessInitName();
-
-		void AddProtocol(const char* name, uint32_t crc)
-		{
-			// TODO: limit the total number of protocols (to save memory)
-			mRemoteProtocols.push_back(ProtocolInfo(name, crc));
-		}
+		void AddProtocol(const char* name, uint32_t crc);
 
 		ProtocolInfoCollection& RemoteProtocols() { return mRemoteProtocols;  }
 
 		ProtocolInfo* GetProtocolForChannel(uint32_t chan);
+		bool GetChannelForProtocol(uint32_t proto, uint8_t& chan);
+
+		bool IsServer() { return mIsServer; }
+
+		void BeginRequestEncoders();
+
+		void SendInboundProtocols();
+		void SendOutboundProtocols();
+
 	protected:
 		typedef std::map<uint32_t, ProtocolInfo*> ChannelMapCollection;
+		typedef std::map<uint32_t, uint32_t>      ProtocolToChannelCollection;
 		enum State mState;
-		DataChain  mReceiveBuffer;
-		ObjectId   mId;
+
+		bool          mIsServer;
+		net::Socket*  mSocket;
+		DataChain     mReceiveBuffer;
+		DataChain     mTransmitBuffer;
+		ObjectId      mId;
 		TCPTransport& mTransport;
+		TCPServer&    mServer;
+
 		// Protocol info received from Remote connection
-		ProtocolInfoCollection mRemoteProtocols;
-		ChannelMapCollection   mChannelMap;
+		ProtocolInfoCollection      mRemoteProtocols;
+		ChannelMapCollection        mChannelMap;  //!< ChannelId to Protocol
+		ProtocolToChannelCollection mProtocolMap; //!< Protocol CRC to channel Id
+
+		ProtocolInfoCollection::iterator mProtoIter;
+
+		
 		// Quick lookup when sending
 		ProtocolEncodingMap    mProtocolEncoding;
 
@@ -132,6 +158,13 @@ public:
 		uint32_t   mFallbackEncoding;
 
 		Link       mLink;
+
+		int mReceiveState;
+		int mReceiveMessageState;
+		uint32_t nameLength;
+
+
+		void IncomingProtocolCallback(ProtocolInfo* info);
 	};
 
     TCPServer(TCPTransport& transport);
@@ -140,6 +173,10 @@ public:
     bool Start(uint16_t port);
     bool ConnectTo(const char* address, uint16_t port);
 
+	net::Error Address(pbb::net::SocketAddress& addr)
+	{		
+		return m_Socket->Address(addr);
+	}
     /**
     Sends message to specific object on remote server
     @param server Remote service to send to
@@ -154,6 +191,9 @@ public:
     int32_t Send(Link& link, Message* message);
 
 	uint32_t NumberOfConnections();
+
+	void OnHelloReceived(Connection* connection, ObjectId& id);
+
 protected:
 
 	/**
@@ -204,10 +244,10 @@ class PBB_API TCPTransport : public ITransport, IMessagePool
 public:
     /**
     New TCPTransport
-	@param handlers  Callbacks on a received message
+	@param config Routes
     @param port  TCP port to listen on
     */
-    TCPTransport(MessageHandlerCollection& handlers, const uint16_t port);
+    TCPTransport(RouteConfig& config, uint16_t port);
 
     /**
     Called by RouteConfig when sending a message.  To Transmit
@@ -218,13 +258,15 @@ public:
     virtual void Transmit(Link& link, Message* msg);
 	void Receive(Link& link, Message* msg);
 
+	void Update();
+
     /**
     Notify transport of Protocols that will be sent
     RouteConfig will call this whenever RouteConfig::ConfigureOutbound is called
     */
-    virtual void ConfigureOutbound(ProtocolInfo& info);
+    virtual void ConfigureOutbound(ProtocolInfo* info);
 
-    virtual void ConfigureInbound(ProtocolInfo& info);
+    virtual void ConfigureInbound(ProtocolInfo* info);
 
     /////////////////////////////////////////
     // IMessagePool functions
@@ -252,7 +294,11 @@ public:
 		if (message == 0)
 		{
 			// no more messages, create a new one
-			message = mHandlers.Create(protocol, code);
+			message = mRouteConfig.CreateMessage(protocol, code);
+			
+			// Couldn't create message
+			if (message == nullptr) return message;
+
 			message->AddToPool(*this);
 		}
 
@@ -276,16 +322,31 @@ public:
     /////////////////////////////////////////
 
 	ProtocolInfo* FindInbound(ProtocolInfo& info);
-protected:
 
-	MessageHandlerCollection                 mHandlers;
-    std::map<uint32_t, std::list<Message*> > mMessagePool;
 
 	typedef std::vector<ProtocolInfo> ProtocolInfoCollection;
+
+	TCPServer& Server() { return mServer; }
+
+	//////////////////////////////////////////
+	// TCPTransportProtocol
+	void AddProtocolHandler(AddProtocol* msg);
+	//
+	//////////////////////////////////////////
+protected:
+
+	friend TCPServer::Connection;
+
+	RouteConfig&                             mRouteConfig;
+	TCPServer                                mServer;
+    std::map<uint32_t, std::list<Message*> > mMessagePool;
     // Protocols we can send
 	ProtocolInfoCollection mOutboundProtocols;
     // Protocols we can receive
 	ProtocolInfoCollection mInboundProtocols;
+
+	static void DispatchMessage(void* ctx, Link& link, Message* msg);
+
 private:
 };
 

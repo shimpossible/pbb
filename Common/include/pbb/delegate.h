@@ -30,7 +30,7 @@ namespace pbb
         } *mBase;
         class Func : public Base
         {
-            void(mFptr)(void* data);
+            void (*mFptr)(void* data);
         };
         template<typename T>
         class Obj : public Base

@@ -21,9 +21,10 @@ namespace msg{
 
         /**
             Add a new handler for the given protocol
-            @param crc    crc of protocol
-            @param ctx    Data to pass to fptr function
-            @param fptr   Function to call
+            @param crc     crc of protocol
+			@param factory Function to Create Message
+            @param ctx     Data to pass to fptr function
+            @param fptr    Function to call when message is received
          */
         void Add(uint32_t crc, MessageFactory* factory, void* ctx, MessageHandler* fptr)
         {

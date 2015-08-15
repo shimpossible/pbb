@@ -29,6 +29,9 @@ namespace msg {
 
         virtual Message* CreateMessage(uint32_t protocol, uint32_t code);
         virtual void ReleaseMessage(Message* msg);
+
+		virtual void ConfigureInbound(ProtocolInfo* info) {}
+		virtual void ConfigureOutbound(ProtocolInfo* info) {}
     protected:
 
         /**

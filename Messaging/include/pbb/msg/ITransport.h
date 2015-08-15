@@ -23,9 +23,9 @@ public:
         Notified of Protocols that will be sent on this transport
         RouteConfig will call this whenever RouteConfig::ConfigureOutbound is called
         */
-    virtual void ConfigureOutbound(ProtocolInfo& info) {}
+	virtual void ConfigureOutbound(ProtocolInfo* info) = 0;
 
-    virtual void ConfigureInbound(ProtocolInfo& info) {}
+	virtual void ConfigureInbound(ProtocolInfo* info) = 0;
 
 protected:
     virtual ~ITransport() {}

@@ -1,35 +1,59 @@
 #include "pbb/msg/TCPTransport.h"
+#include "pbb/msg/TCPTransportProtocol.h"
 #include "pbb/msg/RouteConfig.h"
 
 namespace pbb {
 namespace msg {
 
-TCPTransport::TCPTransport(MessageHandlerCollection& handlers, uint16_t port)
-	: mHandlers(handlers)
+
+TCPTransport::TCPTransport(RouteConfig& config, uint16_t port)
+	: mRouteConfig(config)
+	, mServer(*this)
 {
-    // TODO: open socket listening for new connections
-    // start Receive Thread
+	// TODO: move actual start somewhere else.  Constructor is only for initializing defaults
+	mServer.Start(port);
+	
+	mRouteConfig.ConfigureInbound<TCPTransportProtocol>(this, &TCPTransport::DispatchMessage);
+}
+
+void TCPTransport::DispatchMessage(void* ctx, Link& link, Message* msg)
+{
+	TCPTransport* self = (TCPTransport*)ctx;
+	printf("Received: %d\r\n", msg->GetCode());
+	switch (msg->GetProtcolCRC())
+	{
+	case TCPTransportProtocol::CRC:
+		TCPTransportProtocol::Dispatch<TCPTransport>(msg, self);
+		break;
+	default:
+		// unknonw message
+		break;
+	}
 }
 
 void TCPTransport::Transmit(Link& link, Message* msg)
 {
-    // Loop through all clients that accept the protocol
-    msg->GetProtcolCRC();
+	// Loop through all clients that accept the protocol
+	msg->GetProtcolCRC();
 }
 
 void TCPTransport::Receive(Link& link, Message * msg)
 {
-	mHandlers.Dispatch(link, msg);
+	mRouteConfig.MessageHandlers().Dispatch(link, msg);
+	//mHandlers.Dispatch(link, msg);
 }
 
-void TCPTransport::ConfigureOutbound(ProtocolInfo& info)
+void TCPTransport::Update()
 {
-    mOutboundProtocols.push_back(info);
+	mServer.Update();
 }
 
-void TCPTransport::ConfigureInbound(ProtocolInfo& info)
+void TCPTransport::ConfigureOutbound(ProtocolInfo* info)
 {
-    mInboundProtocols.push_back(info);
+}
+
+void TCPTransport::ConfigureInbound(ProtocolInfo* info)
+{
 }
 
 pbb::msg::ProtocolInfo* TCPTransport::FindInbound(ProtocolInfo& info)
@@ -37,14 +61,13 @@ pbb::msg::ProtocolInfo* TCPTransport::FindInbound(ProtocolInfo& info)
 	ProtocolInfoCollection::iterator it;
 	// Find Protocol by Name
 	for (it = mInboundProtocols.begin();
-	     it != mInboundProtocols.end();
-		 it++)
+	it != mInboundProtocols.end();
+		it++)
 	{
-		if (strcmp(it->m_Name, info.m_Name) == 0) return &*it;
+		if (strcmp(it->Name, info.Name) == 0) return &*it;
 	}
-    return 0;
+	return 0;
 }
-
 
 TCPServer::TCPServer(TCPTransport& transport)
 	: m_Transport(transport)
@@ -83,11 +106,12 @@ TCPServer::Connection * TCPServer::FindClient(net::pbb_socket_t id)
 	return nullptr;
 }
 
-void TCPServer::AddPending(net::pbb_socket_t id, TCPServer::Connection * client)
+void TCPServer::AddPending(net::pbb_socket_t id, TCPServer::Connection* client)
 {
 	m_KnownConnections[id] = client;
 
-	//TODO: Send connection request
+	// sends hello (16byte id)
+	client->SendHello();
 }
 
 void TCPServer::Callbacks::state_changed(pbb::net::Socket * socket, net::SocketManager::State state)
@@ -96,7 +120,7 @@ void TCPServer::Callbacks::state_changed(pbb::net::Socket * socket, net::SocketM
 	{
 	case net::SocketManager::CONNECTED: // Connected to remote server..
 		// Treat this as another client connection
-		Connection* client = new Connection(socket, mServer.m_Transport);
+		Connection* client = new Connection(socket, mServer.m_Transport, mServer, false);
 		mServer.AddPending(*socket, client);
 		break;
 	}
@@ -105,7 +129,7 @@ void TCPServer::Callbacks::state_changed(pbb::net::Socket * socket, net::SocketM
 void TCPServer::Callbacks::accepted(pbb::net::Socket * socket, pbb::net::Socket* remote, pbb::net::SocketAddress& address)
 {
 	// new client connects to server
-	Connection* client = new Connection(remote, mServer.m_Transport);
+	Connection* client = new Connection(remote, mServer.m_Transport, mServer, true);
 	mServer.AddPending(*remote, client);
 }
 
@@ -124,6 +148,17 @@ uint32_t TCPServer::NumberOfConnections()
 	return m_KnownConnections.size();
 }
 
+void TCPServer::OnHelloReceived(Connection * connection, ObjectId & id)
+{
+	// TODO: associate ID with connection
+	printf("Connection %p remote id = %016llx %016llx\r\n", connection, id.first, id.second);
+	if (connection->IsServer())
+	{
+		// Server Requests encoders from client
+		connection->BeginRequestEncoders();
+	}
+}
+
 
 uint32_t Encoded7BitBytes(uint32_t val)
 {
@@ -133,10 +168,34 @@ uint32_t Encoded7BitBytes(uint32_t val)
 	return 1;
 }
 
+PBB_API bool Encode7Bit(DataChain& buff, uint32_t val, bool prefix=false)
+{
+	uint32_t ret = 0;
+	unsigned char* ptr = (unsigned char*)&ret;
+	uint32_t bytes = 1;
+	while (val > 0x80)
+	{
+		*ptr++ = (val | 0x80) & 0xFF;
+		val = val >> 7; // shift off the lower 7 bits
+		bytes++;
+	}
+	// val should be less than 0x80 at this point
+	*ptr = (unsigned char)val;
+
+	if (bytes <= buff.Available())
+	{
+		if (prefix)  buff.AddHead(&ret, bytes);
+		else         buff.AddTail(&ret, bytes);
+		
+		return true;
+	}
+	return false;
+}
+
 /**
 7 bit integer encoding, LSByte first
 */
-uint32_t Encode7Bit(uint32_t val, int& bytes)
+PBB_API uint32_t Encode7Bit(uint32_t val, int& bytes)
 {
 	uint32_t ret = 0;
 	unsigned char* ptr = (unsigned char*)&ret;
@@ -153,20 +212,21 @@ uint32_t Encode7Bit(uint32_t val, int& bytes)
 }
 
 /**
- Decode 7bit encoded integer
- @param buff Buffer of data
- @param len  Number of bytes of data
- @param val  Decoded integer
- @returns pointer to input buffer, after decoded bytes.  If nothing decoded, returns original buffer
- */
-uint8_t* Decode7Bit(uint8_t* buff, uint32_t len, uint32_t& val)
+	Decode 7bit encoded integer
+	@param buff Buffer of data
+	@param len  Number of bytes of data
+	@param val  Decoded integer
+	@returns pointer to input buffer, after decoded bytes.  If nothing decoded, returns original buffer
+	*/
+PBB_API uint8_t* Decode7Bit(uint8_t* buff, uint32_t len, uint32_t& val)
 {
 	uint8_t* ret = buff;
 
 	if (len > 4) len = 4;
 
+	val = 0;
 	// at most 4 bytes
-	for (uint32_t i = 0;i<len;i++)
+	for (uint32_t i = 0;i < len;i++)
 	{
 		ret++;
 		val += (ret[-1] & 0x7F) << (i * 7);
@@ -181,12 +241,42 @@ uint8_t* Decode7Bit(uint8_t* buff, uint32_t len, uint32_t& val)
 	return ret;
 }
 
-uint32_t Decode7Bit(uint8_t* val)
+/*
+	@returns TRUE if correctly parsed integer
+	*/
+PBB_API bool Decode7Bit(DataChain& chain, uint32_t& val)
+{
+	uint8_t* ret = chain.GetBuffer();
+	uint32_t len = chain.Size();
+	uint32_t i;
+	if (len > 4) len = 4;
+
+	val = 0;
+	// at most 4 bytes
+	for (i = 0;i < len;i++)
+	{
+		ret++;
+		val += (ret[-1] & 0x7F) << (i * 7);
+		if (ret[-1] < 0x80)
+		{
+			break;
+		}
+	}
+
+	// not enough bytes
+	if (len == 0 || ret[-1] & 0x80) return false;
+
+	// Remove used bytes
+	chain.Shift(i+1);
+	return true;
+}
+
+PBB_API uint32_t Decode7Bit(uint8_t* val)
 {
 	uint32_t ret = 0;
 
 	// at most 4 bytes
-	for (int i = 0;i<4;i++)
+	for (int i = 0;i < 4;i++)
 	{
 		ret += (*val & 0x7F) << (i * 7);
 		if (*val < 0x80)
@@ -197,55 +287,93 @@ uint32_t Decode7Bit(uint8_t* val)
 	return ret;
 }
 
-bool TCPServer::Connection::ProcessInitName()
-{
-	bool loop = false;
-	do
-	{
-		loop = false;
-		uint32_t len = 0;
-		uint32_t size = mReceiveBuffer.Size();
-		uint8_t* buff = mReceiveBuffer.GetBuffer();
-		uint8_t* buff2 = Decode7Bit(buff, size, len);
-		int needed = buff2 - buff;
-		if (buff != buff2) // enough for length
-		{
-			// get length of string
-			if (len == 0)
-			{
-				// no more protocols
-				mState = INIT_RECONCILE;
-				loop = true;
-				mReceiveBuffer.Shift(1);
-				break; // break out of do loop
-			}
-			else
-			{
-				// have enough for name and CRC?
-				if (size >= (needed + len + 4))
-				{
-					char* name = new char[len + 1];
-					uint32_t crc;
-					// copy name from buffer
-					memcpy(name, mReceiveBuffer.GetBuffer() + needed, len);
-					name[len] = 0; // null terminate
-					memcpy(&crc, mReceiveBuffer.GetBuffer() + needed + len, 4);
-					AddProtocol(name, crc);
-
-					mReceiveBuffer.Shift(len + needed + 4);
-					loop = true;
-				}
-			}
-		}
-	} while (loop);
-	return loop;
-}
-
 ProtocolInfo * TCPServer::Connection::GetProtocolForChannel(uint32_t chan)
 {
 	ChannelMapCollection::iterator it = mChannelMap.find(chan);
 	if (it != mChannelMap.end()) return it->second;
 	return nullptr;
+}
+
+bool TCPServer::Connection::GetChannelForProtocol(uint32_t proto, uint8_t& chan)
+{
+	bool result = false;
+	if (proto == TCPTransportProtocol::CRC)
+	{
+		chan = 0;
+		result = true;
+	}
+	else
+	{
+		ProtocolToChannelCollection::iterator it = mProtocolMap.find(proto);
+		if (it != mProtocolMap.end())
+		{
+			chan = it->second;
+			result = true;
+		}
+	}
+	return result;
+}
+
+void TCPServer::Connection::BeginRequestEncoders()
+{
+	// Loop through each remote protocol
+	mProtoIter = mRemoteProtocols.begin();
+	if(mProtoIter != mRemoteProtocols.end())
+	{
+		EncoderRequest req;
+		// Request encoders from remote system
+		req.ProtocolCRC = mProtoIter->CRC;
+		Send(req);
+	}
+
+}
+
+void TCPServer::Connection::IncomingProtocolCallback(ProtocolInfo* info)
+{
+	pbb::msg::AddProtocol msg;
+	msg.Name        = info->Name;
+	msg.ProtocolCRC = info->CRC;
+	// List of supported Encoders
+	//msg.Encoders    = info->Encoders;
+	Send(msg);
+}
+
+void TCPServer::Connection::SendInboundProtocols()
+{
+	mTransport.mRouteConfig.ForEachIncommingProtocols(&Connection::IncomingProtocolCallback, this);
+}
+void TCPServer::Connection::SendOutboundProtocols()
+{
+
+}
+#define TASK_START(x) switch(x){ case -1:
+
+/* exit one loop */
+#define TASK_YIELD(x) x = __LINE__; return; case __LINE__:
+
+/* block until Y is true */
+#define TASK_UNTIL(x, y) x = __LINE__; case __LINE__: if(!(y)) return;
+
+/* Block while Y is true */
+#define TASK_WHILE(x, y) TASK_UNTIL(x,!(y))
+
+#define TASK_END(x)   x = __LINE__; case __LINE__: default: break; }
+
+
+TCPServer::Connection::ProtocolInfoCollection::iterator protoItr;
+
+void TCPServer::Connection::SendHello()
+{
+	Send(&mId, sizeof(mId) );
+
+	if (mIsServer)
+	{
+		SendInboundProtocols();
+	}
+	else
+	{
+		SendOutboundProtocols();
+	}
 }
 
 /**
@@ -255,60 +383,61 @@ Call when new data arives for client
 */
 void TCPServer::Connection::Receive(const void* src, size_t len)
 {
+	uint8_t *src8 = (uint8_t*)src;
+	printf("%p >> ", this);
+	for (int i = 0;i < len;i++)
+	{
+		printf("%02x ", src8[i]);
+	}
+	printf("\r\n");
 	this->mReceiveBuffer.AddTail(src, len);
+	ReceiveHello();
 
-	bool loop = false;
-	do
+	if (mState == STATE_CONNECTED)
 	{
-		loop = false;
-		switch (mState)
+		TASK_START(mReceiveMessageState)
+		while (true)
 		{
-		case INIT_ID:            loop = ProcessInitId();  break;
-		case INIT_PROTOCOL_NAME: loop = ProcessInitName(); break;
-		case INIT_RECONCILE:     loop = ProcessReconcile(); break;
-		case CONNECTED:          loop = ProcessReceiveMessage(); break;
-		}
-	} while (loop);
-}
-/**
-   Size        1-4 bytes
-   Channel     1 byte
-   Msg Type    1 byte
-   Message Id  2 byte
-   Payload     n bytes
- */
-bool TCPServer::Connection::ProcessReceiveMessage()
-{
-	bool loop = false;
-	do
-	{
-		loop = false;
-		uint32_t len = 0;
-		uint8_t* buff = mReceiveBuffer.GetBuffer();
-		uint8_t* buff2 = Decode7Bit(buff, mReceiveBuffer.Size(), len);
-		int encodedBytes = buff2 - buff;
-		if (buff != buff2)
-		{
-			if (mReceiveBuffer.Size() >= encodedBytes + len)
+			/*
+			Size        1-4 bytes
+			Channel     1 byte
+			Msg Type    1 byte
+			Message Id  2 byte
+			Payload     n bytes
+			*/
+
+			TASK_UNTIL(mReceiveMessageState, Decode7Bit(mReceiveBuffer, nameLength))
+			TASK_UNTIL(mReceiveMessageState, mReceiveBuffer.Size() >= (nameLength))
+
 			{
-				// shift of 7bit encoded number
-				mReceiveBuffer.Shift(encodedBytes);
-				
 				// Read Message Header
 				// TODO: use BinaryDecoder for endianess
 				MessageHeader header;
 				mReceiveBuffer.Shift(&header, sizeof(header));
-				uint32_t payloadSize = len - sizeof(header);
+				uint32_t payloadSize = nameLength - sizeof(header);
 
 				uint32_t protocolCrc;
-				//TODO: Get protocol for channel id
-				ProtocolInfo* info = GetProtocolForChannel(header.ChannelId);
+				ProtocolInfo* info;
+				if (header.ChannelId == 0)
+				{
+					info = TCPTransportProtocol::Info();
+				}
+				else
+				{
+					info = GetProtocolForChannel(header.ChannelId);
+				}
 				if (info != nullptr)
 				{
-					protocolCrc = info->m_CRC;
+					protocolCrc = info->CRC;
 
 					// Which decoder to use
-					uint32_t decoder = mProtocolEncoding.find(protocolCrc)->second;
+					//ProtocolEncodingMap::iterator protItr = mProtocolEncoding.find(protocolCrc);
+					// no match..
+					//if (protItr == mProtocolEncoding.end()) break;
+					//uint32_t decoder = protItr->second;
+
+					// FIXME: assume binary decoder for now
+					uint32_t decoder = BinaryDecoder::ID;
 
 					// Create message
 					Message* msg = this->mTransport.CreateMessage(protocolCrc, header.MessageId);
@@ -316,29 +445,136 @@ bool TCPServer::Connection::ProcessReceiveMessage()
 					// Decode
 					if (msg == nullptr || // bad messageId
 						msg->Get(mReceiveBuffer, decoder) == false // error in decode
-					   )
+						)
 					{
 						// TODO: error decoding..
 					}
 					else
 					{
+						// TODO: route message to server first..
 						// route message
 						mTransport.Receive(mLink, msg);
 
 					}
+					msg->Release();
 				}
 				else
 				{
 					// TODO: err Unknown channel..
 				}
 			}
-		}
-	} while (loop);
-	return loop;
+		} // while true
+
+		TASK_END(mReceiveMessageState)
+	}
+}
+
+void TCPServer::Connection::ReceiveHello()
+{
+	TASK_START(mReceiveState)
+    // Wait until we have enough for 16byte ID
+	TASK_UNTIL(mReceiveState, mReceiveBuffer.Size() >= 16)	
+	mReceiveBuffer.Shift(&mId, 16);
+
+#if 0
+	do{
+		// Wait for enough bytes to read length of name
+		TASK_UNTIL(mReceiveState, Decode7Bit(mReceiveBuffer, nameLength))
+		
+		if (nameLength==0) break;
+
+		/* enough for Name and 4byte CRC */
+		TASK_UNTIL(mReceiveState, mReceiveBuffer.Size() >= (nameLength + 4))
+
+		name = new char[nameLength + 1];
+		// copy name from buffer
+		memcpy(name, mReceiveBuffer.GetBuffer(), nameLength);
+		name[nameLength] = 0; // null terminate
+		memcpy(&crc, mReceiveBuffer.GetBuffer() + nameLength, 4);
+		mReceiveBuffer.Shift(nameLength + 4);
+
+		AddProtocol(name, crc);
+	} while (nameLength != 0);
+#endif
+
+	// once id and All protcols have been received
+	mServer.OnHelloReceived(this, mId);
+
+	mState = STATE_CONNECTED;
+
+	TASK_END(mReceiveState)
+
+}
+
+void TCPServer::Connection::AddProtocol(const char* name, uint32_t crc)
+{
+	ProtocolInfo pi(name, crc);
+	// TODO: limit the total number of protocols?
+	mRemoteProtocols.push_back(pi);
+
+	ProtocolInfo* local = mTransport.FindInbound(pi);
+	// We have a known match?
+	if (local != nullptr)
+	{
+		int channel = mChannelMap.size() + 1;
+		mChannelMap[channel] = local;
+		mProtocolMap[local->CRC] = channel;
+	}
+	else
+	{
+		// no match yet, store to match later
+	}
+}
+
+void TCPServer::Connection::Send(const void * src, size_t len)
+{
+	int sent = 0;
+	uint8_t* src8 = (uint8_t*)src;
+	printf("%p << ", this);
+	for (int i = 0;i < len;i++)
+	{
+		printf("%02x ", src8[i]);
+	}
+	printf("\r\n");
+	// TODO: ensure all data is sent..
+	net::Error err = mSocket->Send(src, len, sent);
+}
+
+void TCPServer::Connection::Send(pbb::msg::Message& msg)
+{
+	uint32_t protocol = msg.GetProtcolCRC();
+
+	mTransmitBuffer.Reset();
+
+	// Channel
+	// MsgType
+	// MsgId
+	// -----------
+	// Payload
+
+	// Find Channel for CRC
+	MessageHeader header;
+	header.MsgType = 0;
+	if (GetChannelForProtocol(msg.GetProtcolCRC(), header.ChannelId))	
+	{
+		header.MessageId = msg.GetCode();
+		mTransmitBuffer.AddTail(&header, sizeof(header));
+
+		msg.Put(mTransmitBuffer, BinaryEncoder::ID);
+
+		// Prefix with length
+		Encode7Bit(mTransmitBuffer, mTransmitBuffer.Size(), true);
+
+		Send(mTransmitBuffer.GetBuffer(), mTransmitBuffer.Size());
+	}
+
 }
 
 bool TCPServer::Connection::ProcessReconcile()
 {
+	// TODO: loop through Server Protocols and match against remote
+	// right now this always does remote (even if remote is server)
+
 	// Loop through each Remote protocol and see which one we match
 	ProtocolInfoCollection::iterator it;
 	for (it = mRemoteProtocols.begin();
@@ -347,17 +583,8 @@ bool TCPServer::Connection::ProcessReconcile()
 	{
 		// Find a local Inbound Protocol by name
 		ProtocolInfo* local = mTransport.FindInbound(*it);
-		if (local != nullptr)
+		if (local != nullptr)  // found a match
 		{
-			if (local->m_CRC == it->m_CRC)  // exactly match, use highest prefered encoding
-			{
-				mProtocolEncoding[local->m_CRC] = mBestEncoding;
-			}
-			else // Not exact match, use best fallback encoding
-			{
-				mProtocolEncoding[local->m_CRC] = mFallbackEncoding;
-			}
-
 			mChannelMap[mChannelMap.size() + 1] = local;
 		}
 		else
@@ -365,9 +592,31 @@ bool TCPServer::Connection::ProcessReconcile()
 			// No match, ignore
 		}
 	}
-	mState = CONNECTED;
 	return true;
 }
+
+bool TCPServer::Connection::ProcessResolveEncoders()
+{
+	bool loop = false;
+
+	ChannelMapCollection::iterator it;
+	it = mChannelMap.begin();
+	if (it != mChannelMap.end())
+	{
+		uint32_t channelId = it->first;
+
+	}	
+
+	return loop;
+}
+
+void TCPTransport::AddProtocolHandler(AddProtocol* msg)
+{
+
+}
+
+const char* EncoderResponse::NAME = "EncoderResponse";
+const char* EncoderRequest::NAME = "EncoderRequest";
 
 } // namespace msg
 } // namespace pbb

@@ -52,6 +52,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>PBB_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -75,15 +76,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BinaryDecoder.cpp" />
+    <ClCompile Include="src\BinaryEncoder.cpp" />
     <ClCompile Include="src\Configure.cpp" />
     <ClCompile Include="src\LocalTransport.cpp" />
     <ClCompile Include="src\Message.cpp" />
     <ClCompile Include="src\MessageQueue.cpp" />
+    <ClCompile Include="src\ProtocolInfo.cpp" />
     <ClCompile Include="src\RouteConfig.cpp" />
     <ClCompile Include="src\TCPTransport.cpp" />
+    <ClCompile Include="src\TCPTransportProtocol.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\pbb\msg\Array.h" />
     <ClInclude Include="include\pbb\msg\BinaryDecoder.h" />
+    <ClInclude Include="include\pbb\msg\BinaryEncoder.h" />
     <ClInclude Include="include\pbb\msg\Endpoint.h" />
     <ClInclude Include="include\pbb\msg\ITransport.h" />
     <ClInclude Include="include\pbb\msg\Link.h" />
@@ -95,6 +102,7 @@
     <ClInclude Include="include\pbb\msg\RefCounted.h" />
     <ClInclude Include="include\pbb\msg\RouteConfig.h" />
     <ClInclude Include="include\pbb\msg\TCPTransport.h" />
+    <ClInclude Include="include\pbb\msg\TCPTransportProtocol.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

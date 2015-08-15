@@ -12,6 +12,12 @@ RouteConfig::RouteConfig()
 RouteConfig::~RouteConfig()
 {
 }
+
+Message* RouteConfig::CreateMessage(uint32_t protocolCrc, uint32_t msgId)
+{
+	return mIncommingHandlers.Create(protocolCrc, msgId);
+}
+
 /**
 * Configure a Transport for this RouteConfig
 * @param tport  Instance of a ITransport class

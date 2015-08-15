@@ -5,18 +5,24 @@
 
 #include <vector>
 
+// Decoders the Message supports
+#include "pbb/msg/BinaryDecoder.h"
+#include "pbb/msg/BinaryEncoder.h"
+
 class TestMessage : public pbb::msg::Message
 {
 public:
-    virtual uint32_t GetProtcolCRC() { return 1; }
-    virtual uint32_t GetCode() { return 2; }
+	const static pbb::msg::MessageID CODE = 2;
+	const static char* NAME;
 
-	virtual bool Get(pbb::DataChain& data, uint32_t protocol)
-	{
-		// decoded correctly
-		data.Shift(&this->data, 4);
-		return true;
-	}
+    uint32_t GetProtcolCRC() { return 1; }
+	pbb::msg::MessageID GetCode() { return TestMessage::CODE; }
+
+	bool Get(pbb::DataChain& data, uint32_t protocol);
+	bool Get(pbb::msg::BinaryDecoder& decoder);
+
+	bool Put(pbb::DataChain& data, uint32_t protocol);
+	bool Put(pbb::msg::BinaryEncoder& encoder);
 
     virtual void Copy(pbb::msg::Message* other)
     {
@@ -51,6 +57,8 @@ public:
         return new TestMessage();
     }
 
+	static pbb::msg::ProtocolInfo* Info();
+
 };
 
 class TestTransport : public pbb::msg::ITransport
@@ -67,11 +75,15 @@ public:
         received.push_back(msg);
     }
 
-    virtual void ConfigureOutbound(uint32_t crc)
-    {
-        outbound.push_back(crc);
-    }
+	virtual void ConfigureOutbound(pbb::msg::ProtocolInfo* info)
+	{
+		outbound.push_back(info->CRC);
+	}
 
+	virtual void ConfigureInbound(pbb::msg::ProtocolInfo* info)
+	{
+
+	}
 };
 
 #endif

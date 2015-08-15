@@ -6,8 +6,9 @@
 #include "ITransport.h"
 #include "LocalTransport.h"
 #include "ProtocolInfo.h"
-
 #include "MessageHandlerCollection.h"
+#include <pbb/delegate.h>
+
 #include <list>
 
 namespace pbb {
@@ -21,8 +22,12 @@ class PBB_API RouteConfig
 {
 public:
 
+	typedef std::list<ProtocolInfo*> ProcolInfoCollection;
+
     RouteConfig();
     ~RouteConfig();
+
+	Message* CreateMessage(uint32_t protocolCrc, uint32_t msgId);
 
     /**
         * Configure a Transport for this RouteConfig
@@ -34,13 +39,16 @@ public:
     void ConfigureOutbound()
     {
         mOutgoingHandlers.push_back(PROTOCOL_T::CRC);
+		ProtocolInfo* info = PROTOCOL_T::Info();
+		mOutgoingProtocols.push_back(info);
+
         // Notify all Transports of the new protocol
         std::list<ITransport*>::iterator it;
         for (it = mTransport.begin();
         it != mTransport.end();
             it++)
         {
-            (*it)->ConfigureOutbound(PROTOCOL_T::CRC);
+            (*it)->ConfigureOutbound(info);
         }
     }
 
@@ -50,7 +58,9 @@ public:
         // TODO: wrap access
         mIncommingHandlers.Add(PROTOCOL_T::CRC, PROTOCOL_T::CreateMessage, ctx, fptr);
 
-		ProtocolInfo info(PROTOCOL_T::NAME, PROTOCOL_T::CRC);
+		ProtocolInfo* info = PROTOCOL_T::Info();
+		mIncommingProtocols.push_back(info);
+
         // Notify all Transports of the new protocol
         std::list<ITransport*>::iterator it;
         for (it = mTransport.begin();
@@ -73,6 +83,29 @@ public:
     {
         return mIncommingHandlers;
     }
+
+	template<typename T>
+	void ForEachIncommingProtocols(void (T::*fptr)(ProtocolInfo*), T* self)
+	{
+		ProcolInfoCollection::iterator it = mIncommingProtocols.begin();
+
+		for (;it != mIncommingProtocols.end(); it++)
+		{
+			(self->*fptr)( *it );
+		}
+	}
+
+	template<typename T>
+	void ForEachOutgoingProtocols(void (T::*fptr)(ProtocolInfo*), T* self)
+	{
+		ProcolInfoCollection::iterator it = mOutgoingProtocols.begin();
+
+		for (;it != mOutgoingProtocols.end(); it++)
+		{
+			(self->*fptr)( *it );
+		}
+	}
+
 private:
     // Who to notify when a message is received
     MessageHandlerCollection mIncommingHandlers;
@@ -81,6 +114,9 @@ private:
     std::list<uint32_t> mOutgoingHandlers;
     // Transports to send messages on
     std::list<ITransport*> mTransport;
+
+	ProcolInfoCollection mIncommingProtocols;
+	ProcolInfoCollection mOutgoingProtocols;
 
     //! Every RouteConfig can route amoung its local members
     LocalTransport  mLocalTransport;
