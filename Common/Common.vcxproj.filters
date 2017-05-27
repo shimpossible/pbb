@@ -30,12 +30,39 @@
     <ClInclude Include="include\pbb\DataChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\pbb\Logging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pbb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Atomic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc_by4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc_by8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc_precompute_by4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc_precompute_by8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crc_bitwise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

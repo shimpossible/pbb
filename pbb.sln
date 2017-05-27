@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{7E68EF14-77F2-451D-9A98-7654309C5FA4}"
 EndProject
@@ -26,6 +26,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Thread", "Thread", "{7148C5FA-F5B2-4EE7-BB96-5783D6C4DC69}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "Thread\test\test.vcxproj", "{D2C39C55-98D3-49D6-8E71-18CC86FCA70C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7E68EF14-77F2-451D-9A98-7654309C5FA4} = {7E68EF14-77F2-451D-9A98-7654309C5FA4}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging", "Messaging", "{DB30C6BF-B236-4DEA-A8F2-BC5542D590A6}"
 EndProject

@@ -48,9 +48,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>PBB_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -74,11 +75,20 @@
     <ClInclude Include="include\pbb\config.h" />
     <ClInclude Include="include\pbb\DataChain.h" />
     <ClInclude Include="include\pbb\delegate.h" />
+    <ClInclude Include="include\pbb\Logging.h" />
     <ClInclude Include="include\pbb\pbb.h" />
     <ClInclude Include="include\pbb\platform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Atomic.cpp" />
+    <ClCompile Include="src\crc.cpp" />
+    <ClCompile Include="src\crc_bitwise.cpp" />
+    <ClCompile Include="src\crc_by4.cpp" />
+    <ClCompile Include="src\crc_by8.cpp" />
+    <ClCompile Include="src\crc_precompute_by4.cpp" />
+    <ClCompile Include="src\crc_precompute_by8.cpp" />
+    <ClCompile Include="src\crc_table.cpp" />
+    <ClCompile Include="src\Logging.cpp" />
     <ClCompile Include="src\pbb.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
