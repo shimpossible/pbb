@@ -8,6 +8,7 @@
 #define PBB_OS_WINDOWS_CE  (2)
 #define PBB_OS_LINUX       (3)
 #define PBB_OS_MACOS       (4)
+#define PBB_OS_VXWORKS     (5)
 
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #elif defined(_AIX) || defined(__TOS_AIX__)
@@ -15,6 +16,7 @@
 #elif defined(__digital__) || defined(__osf__)
 #elif defined(__NACL__)
 #elif defined(linux) || defined(__linux) || defined(__linux__) || defined(__TOS_LINUX__) || defined(EMSCRIPTEN)
+    #define PBB_OS PBB_OS_LINUX
 #elif defined(__APPLE__) || defined(__TOS_MACOS__)
     #define PBB_OS PBB_OS_MACOS
 #elif defined(__NetBSD__)
@@ -24,14 +26,19 @@
 #elif defined(__QNX__)
 #elif defined(__CYGWIN__)
 #elif defined(__VXWORKS__)
+    #define PBB_OS PBB_OS_VXWORKS
 #elif defined (unix) || defined(__unix) || defined(__unix__)
 #elif defined(_WIN32_WCE)
-    #define PBB_OS_IS_WINDOWS
+    #define PBB_OS_IS_WINDOWS 1
     #define PBB_OS PBB_OS_WINDOWS_CE
 #elif defined(_WIN32) || defined(_WIN64)
     #define PBB_OS_IS_WINDOWS 1
     #define PBB_OS PBB_OS_WINDOWS_NT
 #elif defined(__VMS)
+#endif
+
+#if !defined(PBB_OS)
+#error "Unsupported/Unknown OS"
 #endif
 
 #define PBB_ARCH_ALPHA   1
@@ -83,5 +90,10 @@
 
 #if !defined(PBB_ARCH)
     #error "Unsupported/Unknown Architecture"
+#endif
+
+
+#if !defined(PBB_ARCH_ENDIAN)
+#error "Unknown Endian"
 #endif
 #endif /* __PBB_PLATFORM_H__ */
