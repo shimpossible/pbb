@@ -5,28 +5,29 @@
 #include <ostream>
 namespace pbb
 {
+
+    
 class PBB_API Log
 {
 public:
+    typedef uint32_t LEVEL;
 
-	enum LEVEL
-	{
-		LEVEL_FATAL,
-		LEVEL_ERROR,
-		LEVEL_WARNING,
-		LEVEL_INFO,
-		LEVEL_DEBUG,
-	};
+    const static LEVEL LEVEL_FATAL   = 1000;
+    const static LEVEL LEVEL_WARNING = 2000;
+    const static LEVEL LEVEL_INFO    = 3000; 
+    const static LEVEL LEVEL_DEBUG   = 4000;
 
 	Log(LEVEL level, const char* file, int line)
 	{
 
 	}
 
+    char foo[LEVEL_INFO];
 	std::ostream& out();
 
 	static bool IsEnabled(LEVEL level);
 	static LEVEL getLevel();
+    static void  setLevel(LEVEL level);
 };
 
 /**
