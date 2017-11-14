@@ -92,5 +92,8 @@
     <ClInclude Include="include\pbb\msg\TCPTransportProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\pbb\msg\Server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

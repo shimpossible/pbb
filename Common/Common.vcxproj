@@ -48,10 +48,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>PBB_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -80,6 +80,7 @@
     <ClInclude Include="include\pbb\platform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Arch_x86.cpp" />
     <ClCompile Include="src\Atomic.cpp" />
     <ClCompile Include="src\crc.cpp" />
     <ClCompile Include="src\crc_bitwise.cpp" />

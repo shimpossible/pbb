@@ -101,6 +101,7 @@
     <ClInclude Include="include\pbb\msg\ProtocolInfo.h" />
     <ClInclude Include="include\pbb\msg\RefCounted.h" />
     <ClInclude Include="include\pbb\msg\RouteConfig.h" />
+    <ClInclude Include="include\pbb\msg\Server.h" />
     <ClInclude Include="include\pbb\msg\TCPTransport.h" />
     <ClInclude Include="include\pbb\msg\TCPTransportProtocol.h" />
   </ItemGroup>
