@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -18,22 +18,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\LoggerTest.cpp" />
-    <ClCompile Include="src\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\pbb.vcxproj" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{94C75101-EED7-42F5-8D76-F2F61A044699}</ProjectGuid>
-    <RootNamespace>test</RootNamespace>
+    <ProjectGuid>{A9A867DA-E8CE-4AEE-8DD2-725F32CD4890}</ProjectGuid>
+    <RootNamespace>pbb</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -46,7 +39,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -77,24 +70,31 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>..\..\Debug\;..\..\extern\gtest-1.7.0\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <IncludePath>..\include;..\..\Thread\include;..\..\Common\include;..\..\extern\gtest-1.7.0\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>pbb.Common.lib;gtestMDd_2015.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>PBB_EXPORT;_WINDLL;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PBB_EXPORT;_WINDLL;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,6 +123,45 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Common\Arch_x86.cpp" />
+    <ClCompile Include="src\Common\Atomic.cpp" />
+    <ClCompile Include="src\Common\crc.cpp" />
+    <ClCompile Include="src\Common\crc_bitwise.cpp" />
+    <ClCompile Include="src\Common\crc_by4.cpp" />
+    <ClCompile Include="src\Common\crc_by8.cpp" />
+    <ClCompile Include="src\Common\crc_precompute_by4.cpp" />
+    <ClCompile Include="src\Common\crc_precompute_by8.cpp" />
+    <ClCompile Include="src\Common\crc_table.cpp" />
+    <ClCompile Include="src\Common\Logging.cpp" />
+    <ClCompile Include="src\Common\pbb.cpp" />
+    <ClCompile Include="src\Messaging\BinaryDecoder.cpp" />
+    <ClCompile Include="src\Messaging\BinaryEncoder.cpp" />
+    <ClCompile Include="src\Messaging\Configure.cpp" />
+    <ClCompile Include="src\Messaging\LocalTransport.cpp" />
+    <ClCompile Include="src\Messaging\Message.cpp" />
+    <ClCompile Include="src\Messaging\MessageQueue.cpp" />
+    <ClCompile Include="src\Messaging\ProtocolInfo.cpp" />
+    <ClCompile Include="src\Messaging\RouteConfig.cpp" />
+    <ClCompile Include="src\Messaging\TCPTransport.cpp" />
+    <ClCompile Include="src\Messaging\TCPTransportProtocol.cpp" />
+    <ClCompile Include="src\Net\Net.cpp" />
+    <ClCompile Include="src\Net\Socket.cpp" />
+    <ClCompile Include="src\Net\SocketManager.cpp" />
+    <ClCompile Include="src\Thread\Mutex.cpp" />
+    <ClCompile Include="src\Thread\Thread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\pbb\arch.h" />
+    <ClInclude Include="include\pbb\Atomic.h" />
+    <ClInclude Include="include\pbb\config.h" />
+    <ClInclude Include="include\pbb\crc.h" />
+    <ClInclude Include="include\pbb\DataChain.h" />
+    <ClInclude Include="include\pbb\delegate.h" />
+    <ClInclude Include="include\pbb\Logging.h" />
+    <ClInclude Include="include\pbb\pbb.h" />
+    <ClInclude Include="include\pbb\platform.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
